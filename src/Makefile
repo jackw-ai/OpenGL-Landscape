@@ -30,4 +30,4 @@ $(BASE): $(OBJ)
 	$(LINK.cpp) -o $@ $^ $(LIBS)
 
 clean:
-	rm -f $(OBJ) $(BASE) *.tmp *~ *# 
+	rm -f $(OBJ) $(BASE) *.tmp *~ *# .#* 
