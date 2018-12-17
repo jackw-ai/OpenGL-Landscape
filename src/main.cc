@@ -49,6 +49,9 @@ float curSize = 0.4f;
 float maxSize = 0.8f;
 float minSize = 0.1f;
 
+// size of skybox
+float skyboxSize = 50.0f;
+
 // Vertex Shader
 static const char* vShader = "Shaders/shader.vert";
 static const char* vSkyShader = "Shaders/skyshader.vert";
@@ -250,47 +253,47 @@ int main()
     // skybox vertices
     GLfloat skyboxVertices[] = {
         // positions
-        -5.0f,  5.0f, -5.0f,
-        -5.0f, -5.0f, -5.0f,
-        5.0f, -5.0f, -5.0f,
-        5.0f, -5.0f, -5.0f,
-        5.0f,  5.0f, -5.0f,
-        -5.0f,  5.0f, -5.0f,
+        -skyboxSize,  skyboxSize, -skyboxSize,
+        -skyboxSize, -skyboxSize, -skyboxSize,
+        skyboxSize, -skyboxSize, -skyboxSize,
+        skyboxSize, -skyboxSize, -skyboxSize,
+        skyboxSize,  skyboxSize, -skyboxSize,
+        -skyboxSize,  skyboxSize, -skyboxSize,
         
-        -5.0f, -5.0f,  5.0f,
-        -5.0f, -5.0f, -5.0f,
-        -5.0f,  5.0f, -5.0f,
-        -5.0f,  5.0f, -5.0f,
-        -5.0f,  5.0f,  5.0f,
-        -5.0f, -5.0f,  5.0f,
+        -skyboxSize, -skyboxSize,  skyboxSize,
+        -skyboxSize, -skyboxSize, -skyboxSize,
+        -skyboxSize,  skyboxSize, -skyboxSize,
+        -skyboxSize,  skyboxSize, -skyboxSize,
+        -skyboxSize,  skyboxSize,  skyboxSize,
+        -skyboxSize, -skyboxSize,  skyboxSize,
         
-        5.0f, -5.0f, -5.0f,
-        5.0f, -5.0f,  5.0f,
-        5.0f,  5.0f,  5.0f,
-        5.0f,  5.0f,  5.0f,
-        5.0f,  5.0f, -5.0f,
-        5.0f, -5.0f, -5.0f,
+        skyboxSize, -skyboxSize, -skyboxSize,
+        skyboxSize, -skyboxSize,  skyboxSize,
+        skyboxSize,  skyboxSize,  skyboxSize,
+        skyboxSize,  skyboxSize,  skyboxSize,
+        skyboxSize,  skyboxSize, -skyboxSize,
+        skyboxSize, -skyboxSize, -skyboxSize,
         
-        -5.0f, -5.0f,  5.0f,
-        -5.0f,  5.0f,  5.0f,
-        5.0f,  5.0f,  5.0f,
-        5.0f,  5.0f,  5.0f,
-        5.0f, -5.0f,  5.0f,
-        -5.0f, -5.0f,  5.0f,
+        -skyboxSize, -skyboxSize,  skyboxSize,
+        -skyboxSize,  skyboxSize,  skyboxSize,
+        skyboxSize,  skyboxSize,  skyboxSize,
+        skyboxSize,  skyboxSize,  skyboxSize,
+        skyboxSize, -skyboxSize,  skyboxSize,
+        -skyboxSize, -skyboxSize,  skyboxSize,
         
-        -5.0f,  5.0f, -5.0f,
-        5.0f,  5.0f, -5.0f,
-        5.0f,  5.0f,  5.0f,
-        5.0f,  5.0f,  5.0f,
-        -5.0f,  5.0f,  5.0f,
-        -5.0f,  5.0f, -5.0f,
+        -skyboxSize,  skyboxSize, -skyboxSize,
+        skyboxSize,  skyboxSize, -skyboxSize,
+        skyboxSize,  skyboxSize,  skyboxSize,
+        skyboxSize,  skyboxSize,  skyboxSize,
+        -skyboxSize,  skyboxSize,  skyboxSize,
+        -skyboxSize,  skyboxSize, -skyboxSize,
         
-        -5.0f, -5.0f, -5.0f,
-        -5.0f, -5.0f,  5.0f,
-        5.0f, -5.0f, -5.0f,
-        5.0f, -5.0f, -5.0f,
-        -5.0f, -5.0f,  5.0f,
-        5.0f, -5.0f,  5.0f
+        -skyboxSize, -skyboxSize, -skyboxSize,
+        -skyboxSize, -skyboxSize,  skyboxSize,
+        skyboxSize, -skyboxSize, -skyboxSize,
+        skyboxSize, -skyboxSize, -skyboxSize,
+        -skyboxSize, -skyboxSize,  skyboxSize,
+        skyboxSize, -skyboxSize,  skyboxSize
     };
     
     // skybox textures
@@ -382,7 +385,7 @@ int main()
         }
         
 		// Clear the window
-		glClearColor(1.0f, 1.0f, 0.0f, 1.0f);
+		glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		shaderList[0].UseShader();
@@ -431,14 +434,14 @@ int main()
         for (int i = 0; i < trees.size(); i++)
             trees[i].renderTree(uniformModel, uniformView, uniformProjection, projection);
        
-        
-        
+
         // draw skybox as last
         glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
         skyShader->UseShader();
-        glm::mat4 view = glm::mat4(glm::mat3(uniformView)); // remove translation from the view matrix
+        glm::mat4 view = glm::mat4(glm::mat3(camera.calculateViewMatrix())); // remove translation from the view matrix
         skyShader->setMat4("view", view);
         skyShader->setMat4("projection", projection);
+        
         // skybox cube
         glBindVertexArray(skyboxVAO);
         glActiveTexture(GL_TEXTURE0);
