@@ -24,7 +24,7 @@ endif
 
 CXX = g++
 
-OBJ = $(BASE).o mesh.o shader.o window.o camera.o texture.o
+OBJ = $(BASE).o mesh.o shader.o window.o camera.o texture.o tree.o branch.o
 
 $(BASE): $(OBJ)
 	$(LINK.cpp) -o $@ $^ $(LIBS)

@@ -3,7 +3,6 @@
 #include <iostream>
 #include <string.h>
 #include <cmath>
-#include <vector>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -13,21 +12,23 @@
 #include "GLM/gtc/type_ptr.hpp"
 
 #include "window.h"
-#include "mesh.h"
 #include "shader.h"
 #include "camera.h"
-#include "texture.h"
+#include "tree.h"
 
 const float toRadians = 3.14159265f / 180.0f;
 
 Window mainWindow;
 std::vector<Mesh*> meshList;
+std::vector<Mesh*> treeMeshList;
 std::vector<Shader> shaderList;
 Camera camera;
 
 Texture obj1Texture;
 Texture obj2Texture;
 Texture floorTexture;
+Texture branchTexture1;
+
 
 GLfloat deltaTime = 0.0f;
 GLfloat lastTime = 0.0f;
@@ -50,8 +51,7 @@ static const char* vShader = "Shaders/shader.vert";
 // Fragment Shader
 static const char* fShader = "Shaders/shader.frag";
 
-void CreateObjects() 
-{
+void CreateObjects() {
 	unsigned int indices[] = {
 		0, 3, 1,
 		1, 3, 2,
@@ -61,7 +61,7 @@ void CreateObjects()
 
 	GLfloat vertices[] = {
 	//	x      y      z			u	  v			nx	  ny    nz
-		-1.0f, -1.0f, -0.6f,		0.0f, 0.0f,		0.0f, 0.0f, 0.0f,
+		-1.0f, -1.0f, -0.6f,	0.0f, 0.0f,		0.0f, 0.0f, 0.0f,
 		0.0f, -1.0f, 1.0f,		0.5f, 0.0f,		0.0f, 0.0f, 0.0f,
 		1.0f, -1.0f, -0.6f,		1.0f, 0.0f,		0.0f, 0.0f, 0.0f,
 		0.0f, 1.0f, 0.0f,		0.5f, 1.0f,		0.0f, 0.0f, 0.0f
@@ -79,6 +79,69 @@ void CreateObjects()
 		10.0f, 0.0f, 10.0f,		10.0f, 10.0f,	0.0f, -1.0f, 0.0f
 	};
 
+	int segments = 10;
+	int num_cylinder_vertices = 4 * 10;
+	GLfloat cylinderVertices[40*8] = {};
+
+	GLfloat const bottom = 0.0f;
+	GLfloat const top    = 1.0f;
+	int num= 0;
+	GLfloat r = 0.2f;
+	for(GLuint n = 0; n < segments; ++n) {
+		GLfloat const t0 = 2 * M_PI * (float)n / (float)segments;
+		GLfloat const t1 = 2 * M_PI * (float)(n+1) / (float)segments;
+		//quad vertex 0
+		cylinderVertices[num++] = sin(t0) * r;  // x
+		cylinderVertices[num++] = bottom;			// y
+		cylinderVertices[num++] = cos(t0) * r;	// z
+		cylinderVertices[num++] = 0.0f;
+		cylinderVertices[num++] = 0.0f;
+		cylinderVertices[num++] = 0.0f;
+		cylinderVertices[num++] = 0.0f;
+		cylinderVertices[num++] = 0.0f;
+		//quad vertex 1
+		cylinderVertices[num++] = sin(t1) * r;
+		cylinderVertices[num++] = bottom;
+		cylinderVertices[num++] = cos(t1) * r;
+		cylinderVertices[num++] = 0.5f;
+		cylinderVertices[num++] = 0.0f;
+		cylinderVertices[num++] = 0.0f;
+		cylinderVertices[num++] = 0.0f;
+		cylinderVertices[num++] = 0.0f;
+		//quad vertex 2
+		cylinderVertices[num++] = sin(t1) * r;
+		cylinderVertices[num++] = top;
+		cylinderVertices[num++] = cos(t1) * r;
+		cylinderVertices[num++] = 0.5f;
+		cylinderVertices[num++] = 1.0f;
+		cylinderVertices[num++] = 0.0f;
+		cylinderVertices[num++] = 0.0f;
+		cylinderVertices[num++] = 0.0f;
+		//quad vertex 3
+		cylinderVertices[num++] = sin(t0) * r;
+		cylinderVertices[num++] = top;
+		cylinderVertices[num++] = cos(t0) * r;
+		cylinderVertices[num++] = 0.0f;
+		cylinderVertices[num++] = 0.5f;
+		cylinderVertices[num++] = 0.0f;
+		cylinderVertices[num++] = 0.0f;
+		cylinderVertices[num++] = 0.0f;
+	}
+
+	num = 0;
+	int num_indices = 6*10;
+	unsigned int cylinderIndices[6*10] = {};
+	for(GLuint n = 0; n < segments; ++n) {
+		//quad vertex 0
+		cylinderIndices[num++] = n*4+0;  
+		cylinderIndices[num++] = n*4+1;			
+		cylinderIndices[num++] = n*4+2;	
+
+		cylinderIndices[num++] = n*4+0;  
+		cylinderIndices[num++] = n*4+2;		
+		cylinderIndices[num++] = n*4+3;	
+	}
+
 	Mesh *obj1 = new Mesh();
 	obj1->CreateMesh(vertices, indices, 32, 12);
 	meshList.push_back(obj1);
@@ -90,6 +153,10 @@ void CreateObjects()
 	Mesh *obj3 = new Mesh();
 	obj3->CreateMesh(floorVertices, floorIndices, 32, 6);
 	meshList.push_back(obj3);
+
+	Mesh *cylinder = new Mesh();
+	cylinder->CreateMesh(cylinderVertices, cylinderIndices, num_cylinder_vertices*8, num_indices);
+	meshList.push_back(cylinder);
 }
 
 void CreateShaders()
@@ -101,23 +168,37 @@ void CreateShaders()
 
 int main() 
 {
+	std::cout << "starting..." << std::endl;
+
 	mainWindow = Window(1200, 800);
 	mainWindow.Initialise();
 
 	CreateObjects();
+	std::cout << "objects created..." << std::endl;
+	Tree tree(3, 3);
 	CreateShaders();
 
-	camera = Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f, 5.0f, 0.02f);
+	camera = Camera(glm::vec3(0.0f, 0.0f, 15.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 10.0f, 5.0f, 0.02f);
 
-	obj1Texture = Texture("textures/colorbrick.jpg");
+	std::cout << "camera finished..." << std::endl;
+
+	obj1Texture = Texture("textures/blurry-bright.jpg");
 	obj1Texture.LoadTexture();
 	obj2Texture = Texture("textures/brick.png");
 	obj2Texture.LoadTextureA();
-	floorTexture = Texture("textures/paint.jpg");
+	floorTexture = Texture("textures/grass.jpeg");
 	floorTexture.LoadTexture();
+	std::cout << "first textures finished..." << std::endl;
+
+	branchTexture1 = Texture("textures/cortex.bmp");
+	branchTexture1.LoadTexture();
+	
+	std::cout << "finished loading texture..." << std::endl;
 
 	GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0;
 	glm::mat4 projection = glm::perspective(45.0f, (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 100.0f);
+
+	std::cout << "entering loop" << std::endl;
 
 	// Loop until window closed
 	while (!mainWindow.getShouldClose())
@@ -131,6 +212,7 @@ int main()
 
 		camera.keyControl(mainWindow.getsKeys(), deltaTime);
 		camera.mouseControl(mainWindow.getXChange(), mainWindow.getYChange());
+		tree.keyControl(mainWindow.getsKeys());
 
 		if (direction) {
 			triOffset += triIncrement;
@@ -171,7 +253,7 @@ int main()
 
 		glm::mat4 model = glm::mat4(1.0);
 
-		model = glm::translate(model, glm::vec3(triOffset, 0.0f, -2.5f));
+		model = glm::translate(model, glm::vec3(triOffset-2, 1.0f, 2.5f));
 		model = glm::rotate(model, curAngle * toRadians, glm::vec3(1.0f, 1.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(0.4f, 0.4f, 1.0f));
         glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
@@ -181,7 +263,7 @@ int main()
 		meshList[0]->RenderMesh();
 
 		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(-triOffset, 1.0f, -2.5f));
+		model = glm::translate(model, glm::vec3(-triOffset-4, 1.0f, 2.5f));
 		model = glm::rotate(model, curAngle * toRadians, glm::vec3(1.0f, 1.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(0.4f, 0.4f, 1.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
@@ -191,11 +273,20 @@ int main()
 
 		model = glm::mat4(1.0);
 		model = glm::translate(model, glm::vec3(0.0f, -2.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(0.4f, 0.4f, 1.0f));
+		//model = glm::scale(model, glm::vec3(0.4f, 0.4f, 1.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		floorTexture.UseTexture();
 		//shinyMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		meshList[2]->RenderMesh();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(1.0f, -2.0f, 2.5f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
+		branchTexture1.UseTexture();
+		meshList[3]->RenderMesh();
+
+		tree.renderTree(uniformModel, uniformView, uniformProjection, projection);
 
 		glUseProgram(0);
 
