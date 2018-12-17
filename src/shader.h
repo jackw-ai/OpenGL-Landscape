@@ -3,6 +3,9 @@
 #include <iostream>
 #include <fstream>
 
+#include "GLM/glm.hpp"
+#include "GLM/gtc/matrix_transform.hpp"
+#include "GLM/gtc/type_ptr.hpp"
 #include <GL/glew.h>
 
 class Shader {
@@ -19,6 +22,11 @@ public:
     GLuint GetViewLocation();
 
 	void UseShader();
+    
+    void setInt(const std::string &name, int value) const;
+
+    void setMat4(const std::string &name, const glm::mat4 &mat) const;
+
 	void ClearShader();
 
 	~Shader();

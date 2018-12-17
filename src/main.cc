@@ -1,8 +1,9 @@
 #define STB_IMAGE_IMPLEMENTATION
 
 #include <iostream>
-#include <string.h>
+#include <string>
 #include <cmath>
+#include <sstream>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -15,6 +16,7 @@
 #include "shader.h"
 #include "camera.h"
 #include "tree.h"
+#include "sky.h"
 
 const float toRadians = 3.14159265f / 180.0f;
 
@@ -22,6 +24,7 @@ Window mainWindow;
 std::vector<Mesh*> meshList;
 std::vector<Mesh*> treeMeshList;
 std::vector<Shader> shaderList;
+
 Camera camera;
 
 Texture obj1Texture;
@@ -48,9 +51,11 @@ float minSize = 0.1f;
 
 // Vertex Shader
 static const char* vShader = "Shaders/shader.vert";
+static const char* vSkyShader = "Shaders/skyshader.vert";
 
 // Fragment Shader
 static const char* fShader = "Shaders/shader.frag";
+static const char* fSkyShader = "Shaders/skyshader.frag";
 
 void CreateObjects() {
 	unsigned int indices[] = {
@@ -79,6 +84,7 @@ void CreateObjects() {
 		-10.0f, 0.0f, 10.0f,	0.0f, 10.0f,	0.0f, -1.0f, 0.0f,
 		10.0f, 0.0f, 10.0f,		10.0f, 10.0f,	0.0f, -1.0f, 0.0f
 	};
+    
 
 	int segments = 10;
 	int num_cylinder_vertices = 4 * 10;
@@ -238,10 +244,81 @@ int main()
 	
 	std::cout << "finished loading texture..." << std::endl;
 
+    
+    /* skybox */
+    
+    // skybox vertices
+    GLfloat skyboxVertices[] = {
+        // positions
+        -5.0f,  5.0f, -5.0f,
+        -5.0f, -5.0f, -5.0f,
+        5.0f, -5.0f, -5.0f,
+        5.0f, -5.0f, -5.0f,
+        5.0f,  5.0f, -5.0f,
+        -5.0f,  5.0f, -5.0f,
+        
+        -5.0f, -5.0f,  5.0f,
+        -5.0f, -5.0f, -5.0f,
+        -5.0f,  5.0f, -5.0f,
+        -5.0f,  5.0f, -5.0f,
+        -5.0f,  5.0f,  5.0f,
+        -5.0f, -5.0f,  5.0f,
+        
+        5.0f, -5.0f, -5.0f,
+        5.0f, -5.0f,  5.0f,
+        5.0f,  5.0f,  5.0f,
+        5.0f,  5.0f,  5.0f,
+        5.0f,  5.0f, -5.0f,
+        5.0f, -5.0f, -5.0f,
+        
+        -5.0f, -5.0f,  5.0f,
+        -5.0f,  5.0f,  5.0f,
+        5.0f,  5.0f,  5.0f,
+        5.0f,  5.0f,  5.0f,
+        5.0f, -5.0f,  5.0f,
+        -5.0f, -5.0f,  5.0f,
+        
+        -5.0f,  5.0f, -5.0f,
+        5.0f,  5.0f, -5.0f,
+        5.0f,  5.0f,  5.0f,
+        5.0f,  5.0f,  5.0f,
+        -5.0f,  5.0f,  5.0f,
+        -5.0f,  5.0f, -5.0f,
+        
+        -5.0f, -5.0f, -5.0f,
+        -5.0f, -5.0f,  5.0f,
+        5.0f, -5.0f, -5.0f,
+        5.0f, -5.0f, -5.0f,
+        -5.0f, -5.0f,  5.0f,
+        5.0f, -5.0f,  5.0f
+    };
+    
+    // skybox textures
+    Sky *sky = new Sky();
+    sky->loadCubemap();
+    GLuint cubemapTexture = sky->getTexID();
+
+    // skybox shader
+    Shader *skyShader = new Shader();
+    skyShader->CreateFromFiles(vSkyShader, fSkyShader);
+    skyShader->UseShader();
+    skyShader->setInt("skybox", 0);
+    
+    // skybox VAO
+    GLuint skyboxVAO, skyboxVBO;
+    glGenVertexArrays(1, &skyboxVAO);
+    glGenBuffers(1, &skyboxVBO);
+    glBindVertexArray(skyboxVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    
+    std::cout << "finished building sky..." << std::endl;
+
+    
 	GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0;
 	glm::mat4 projection = glm::perspective(45.0f, (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 100.0f);
-
-	std::cout << "entering loop" << std::endl;
 
     // store trees in vector
     std::vector<Tree> trees;
@@ -250,6 +327,8 @@ int main()
     trees.push_back(tree2);
     trees.push_back(tree3);
     
+    std::cout << "entering loop" << std::endl;
+
 	// Loop until window closed
 	while (!mainWindow.getShouldClose())
 	{
@@ -301,10 +380,9 @@ int main()
                 sizeDirection = !sizeDirection;
             }
         }
-         
-
+        
 		// Clear the window
-		glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
+		glClearColor(1.0f, 1.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		shaderList[0].UseShader();
@@ -349,13 +427,34 @@ int main()
 		branchTexture1.UseTexture();
 		meshList[3]->RenderMesh();
 
+        // render all trees
         for (int i = 0; i < trees.size(); i++)
             trees[i].renderTree(uniformModel, uniformView, uniformProjection, projection);
        
+        
+        
+        // draw skybox as last
+        glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
+        skyShader->UseShader();
+        glm::mat4 view = glm::mat4(glm::mat3(uniformView)); // remove translation from the view matrix
+        skyShader->setMat4("view", view);
+        skyShader->setMat4("projection", projection);
+        // skybox cube
+        glBindVertexArray(skyboxVAO);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glBindVertexArray(0);
+        glDepthFunc(GL_LESS); // set depth function back to default
+        
+        
 		glUseProgram(0);
 
 		mainWindow.swapBuffers();
 	}
+
+    glDeleteBuffers(1, &skyboxVAO);
+    glfwTerminate();
 
 	return 0;
 }

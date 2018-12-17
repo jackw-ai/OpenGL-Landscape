@@ -84,7 +84,6 @@ void Texture::ClearTexture() {
 	fileLocation = "";
 }
 
-
 Texture::~Texture() {
 	ClearTexture();
 }
