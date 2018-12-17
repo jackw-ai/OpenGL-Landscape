@@ -41,7 +41,7 @@ float triMaxOffset = 0.7f;
 float triIncrement = 0.0005f;
 
 float curAngle = 0.0f;
-bool rotate = true;
+bool rotate = false;
 float rotateSpeed = 0.02f;
 
 bool sizeDirection = true;
