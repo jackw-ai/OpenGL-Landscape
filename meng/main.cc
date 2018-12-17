@@ -166,6 +166,13 @@ void CreateShaders()
 	shaderList.push_back(*shader1);
 }
 
+glm::mat4 CreateRotateY(float angle) {
+    return glm::mat4(cosf(angle), 0.f, -sinf(angle), 0.f,
+                    0.f,         1.f, 0.f,          0.f,
+                    sinf(angle), 0.f, cosf(angle),  0.f,
+                    0.f,         0.f, 0.f,          1.f);
+}
+
 int main() 
 {
 	std::cout << "starting..." << std::endl;
@@ -261,6 +268,8 @@ int main()
         glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(camera.calculateViewMatrix()));
 		obj1Texture.UseTexture();
 		meshList[0]->RenderMesh();
+
+		glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(camera.calculateViewMatrix()*CreateRotateY(glm::radians(curAngle))));
 
 		model = glm::mat4(1.0);
 		model = glm::translate(model, glm::vec3(-triOffset-4, 1.0f, 2.5f));
