@@ -51,6 +51,8 @@ float minSize = 0.1f;
 
 // size of skybox
 float skyboxSize = 50.0f;
+float floorSize = 30.0f;
+
 
 // Vertex Shader
 static const char* vShader = "Shaders/shader.vert";
@@ -82,10 +84,10 @@ void CreateObjects() {
 	};
 
 	GLfloat floorVertices[] = {
-		-10.0f, 0.0f, -10.0f,	0.0f, 0.0f,		0.0f, -1.0f, 0.0f,
-		10.0f, 0.0f, -10.0f,	10.0f, 0.0f,	0.0f, -1.0f, 0.0f,
-		-10.0f, 0.0f, 10.0f,	0.0f, 10.0f,	0.0f, -1.0f, 0.0f,
-		10.0f, 0.0f, 10.0f,		10.0f, 10.0f,	0.0f, -1.0f, 0.0f
+		-floorSize, 0.0f, -floorSize,	0.0f, 0.0f,		0.0f, -1.0f, 0.0f,
+		floorSize, 0.0f, -floorSize,	floorSize, 0.0f,	0.0f, -1.0f, 0.0f,
+		-floorSize, 0.0f, floorSize,	0.0f, floorSize,	0.0f, -1.0f, 0.0f,
+		floorSize, 0.0f, floorSize,		floorSize, floorSize,	0.0f, -1.0f, 0.0f
 	};
     
 
