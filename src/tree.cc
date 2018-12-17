@@ -180,6 +180,7 @@ void Tree::renderTree(GLuint uniformModel, GLuint uniformView, GLuint uniformPro
 }
 
 void Tree::keyControl(bool* keys) {
+    
 	if (keys[GLFW_KEY_G]) {
 		growUpward(keys);
 	}

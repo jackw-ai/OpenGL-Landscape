@@ -29,7 +29,6 @@ Texture obj2Texture;
 Texture floorTexture;
 Texture branchTexture1;
 
-
 GLfloat deltaTime = 0.0f;
 GLfloat lastTime = 0.0f;
 
@@ -39,6 +38,8 @@ float triMaxOffset = 0.7f;
 float triIncrement = 0.0005f;
 
 float curAngle = 0.0f;
+bool rotate = true;
+float rotateSpeed = 0.02f;
 
 bool sizeDirection = true;
 float curSize = 0.4f;
@@ -173,6 +174,37 @@ glm::mat4 CreateRotateY(float angle) {
                     0.f,         0.f, 0.f,          1.f);
 }
 
+// wrapper for keyboard functions across all classes
+void keyboard(bool* keys, GLfloat deltaTime, Camera& camera, std::vector<Tree>& trees){
+    
+    camera.keyControl(keys, deltaTime);
+    
+    for (int i = 0; i < trees.size(); i++){
+        trees[i].keyControl(keys);
+    }
+    
+    // whether to rotate
+    if (keys[GLFW_KEY_R]) {
+        rotate = !rotate;
+        
+        if (rotate)
+            std::cout << "Rotation turned on" << std::endl;
+        else
+            std::cout << "Rotation turned off" << std::endl;
+    }
+    
+    if (keys[GLFW_KEY_RIGHT]){
+        rotateSpeed += 0.01f;
+        std::cout << "Rotation speed increased to " << rotateSpeed <<std::endl;
+    }
+    
+    if (keys[GLFW_KEY_LEFT]){
+        rotateSpeed -= 0.01f;
+        std::cout << "Rotation speed decreased to " << rotateSpeed <<std::endl;
+
+    }
+}
+
 int main() 
 {
 	std::cout << "starting..." << std::endl;
@@ -182,9 +214,11 @@ int main()
 
 	CreateObjects();
 	std::cout << "objects created..." << std::endl;
+    
 	Tree tree1(4, 3, 1.0f, 1.0f);
 	Tree tree2(2, 3, 5.0f, 8.0f);
 	Tree tree3(3, 3, -7.0f, 5.0f);
+    
 	CreateShaders();
 
 	camera = Camera(glm::vec3(0.0f, 0.0f, 15.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 10.0f, 5.0f, 0.02f);
@@ -209,6 +243,13 @@ int main()
 
 	std::cout << "entering loop" << std::endl;
 
+    // store trees in vector
+    std::vector<Tree> trees;
+
+    trees.push_back(tree1);
+    trees.push_back(tree2);
+    trees.push_back(tree3);
+    
 	// Loop until window closed
 	while (!mainWindow.getShouldClose())
 	{
@@ -219,12 +260,18 @@ int main()
 		// Get + Handle User Input
 		glfwPollEvents();
 
+        // mouse controls
+        camera.mouseControl(mainWindow.getXChange(), mainWindow.getYChange());
+        
+        /*
 		camera.keyControl(mainWindow.getsKeys(), deltaTime);
-		camera.mouseControl(mainWindow.getXChange(), mainWindow.getYChange());
 		tree1.keyControl(mainWindow.getsKeys());
 		tree2.keyControl(mainWindow.getsKeys());
 		tree3.keyControl(mainWindow.getsKeys());
-
+        */
+        
+        keyboard(mainWindow.getsKeys(), deltaTime, camera, trees);
+        
 		if (direction) {
 			triOffset += triIncrement;
 		}
@@ -235,23 +282,26 @@ int main()
 		if (abs(triOffset) >= triMaxOffset) {
 			direction = !direction;
 		}
+        
+        // controlled rotation speed and whether to rotate
+        if (rotate){
+            curAngle += rotateSpeed;
+            if (curAngle >= 360) {
+                curAngle -= 360;
+            }
 
-		curAngle += 0.3f;
-		if (curAngle >= 360) {
-			curAngle -= 360;
-		}
+            if (direction) {
+                curSize += 0.01f;
+            }
+            else {
+                curSize -= 0.01f;
+            }
 
-		if (direction) {
-			curSize += 0.01f;
-		}
-		else {
-			curSize -= 0.01f;
-		}
-
-		if (curSize >= maxSize || curSize <= minSize) {
-			sizeDirection = !sizeDirection;
-		}
-
+            if (curSize >= maxSize || curSize <= minSize) {
+                sizeDirection = !sizeDirection;
+            }
+        }
+         
 
 		// Clear the window
 		glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
@@ -299,10 +349,9 @@ int main()
 		branchTexture1.UseTexture();
 		meshList[3]->RenderMesh();
 
-		tree1.renderTree(uniformModel, uniformView, uniformProjection, projection);
-		tree2.renderTree(uniformModel, uniformView, uniformProjection, projection);
-		tree3.renderTree(uniformModel, uniformView, uniformProjection, projection);
-
+        for (int i = 0; i < trees.size(); i++)
+            trees[i].renderTree(uniformModel, uniformView, uniformProjection, projection);
+       
 		glUseProgram(0);
 
 		mainWindow.swapBuffers();
