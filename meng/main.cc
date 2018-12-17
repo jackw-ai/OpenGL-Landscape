@@ -182,7 +182,9 @@ int main()
 
 	CreateObjects();
 	std::cout << "objects created..." << std::endl;
-	Tree tree(3, 3);
+	Tree tree1(6, 2, 1.0f, 1.0f);
+	Tree tree2(2, 2, 5.0f, 8.0f);
+	Tree tree3(2, 3, -7.0f, 5.0f);
 	CreateShaders();
 
 	camera = Camera(glm::vec3(0.0f, 0.0f, 15.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 10.0f, 5.0f, 0.02f);
@@ -219,7 +221,7 @@ int main()
 
 		camera.keyControl(mainWindow.getsKeys(), deltaTime);
 		camera.mouseControl(mainWindow.getXChange(), mainWindow.getYChange());
-		tree.keyControl(mainWindow.getsKeys());
+		//tree.keyControl(mainWindow.getsKeys());
 
 		if (direction) {
 			triOffset += triIncrement;
@@ -295,7 +297,9 @@ int main()
 		branchTexture1.UseTexture();
 		meshList[3]->RenderMesh();
 
-		tree.renderTree(uniformModel, uniformView, uniformProjection, projection);
+		tree1.renderTree(uniformModel, uniformView, uniformProjection, projection);
+		tree2.renderTree(uniformModel, uniformView, uniformProjection, projection);
+		tree3.renderTree(uniformModel, uniformView, uniformProjection, projection);
 
 		glUseProgram(0);
 

@@ -4,49 +4,57 @@
 Tree::Tree() {
 }
 
-Tree::Tree(int init_depth, int init_height) {
+Tree::Tree(int init_depth, int init_height, GLfloat init_x_pos, GLfloat init_z_pos, int init_strong_factor) {
 	branchTexture = Texture("textures/cortex.bmp");
 	branchTexture.LoadTexture();
 
 	depth = init_depth;
 	height = init_height;
+	x_pos = init_x_pos;
+	z_pos = init_z_pos;
+	strong_factor = init_strong_factor;
 
 	// cortex
-	Branch* cortex = new Branch(0.0f, -1.0f, 3.0f);
+	Branch* cortex = new Branch(0.0f, -1.0f, 2.0f, x_pos, z_pos, strong_factor+(depth/5));
 	branchList.push_back(cortex);
 
 	// root branch
-	Branch* root_branch = new Branch(0.0f, 3.0f);
+	Branch* root_branch = new Branch(0.0f, 2.0f, 1.0f, x_pos, z_pos, strong_factor+(depth/5));
 	branchList.push_back(root_branch);
 
 
-	// build the tree per level of height given depth
+	// // build the tree per level of height given depth
 	Branch* level_root_branch = root_branch;
 	for (int h=1; h <= height; h++) {
-		buildTree(level_root_branch, init_depth, h);
+		buildTree(level_root_branch, depth, h, depth);
 
-		level_root_branch = new Branch(0.0f, 3.0f+h*2.0f);
-		branchList.push_back(level_root_branch);
+		if (h < height) {
+			level_root_branch = new Branch(0.0f, 2.0f+h*2.0f, 1.0f, x_pos, z_pos, strong_factor+(depth/5));
+			branchList.push_back(level_root_branch);
+		}
 	}
 }
 
-void Tree::buildTree(Branch* root_branch, int tree_depth, int tree_height) {
+void Tree::buildTree(Branch* root_branch, int tree_depth, int tree_height, int total_depth) {
 	if (tree_depth == 0) {
 		return;
 	}
 
 	int child_number = 2;
 	for (int i=0; i < child_number; i++) {
-		GLfloat angle = 80.0f * (1+tree_height) * 0.1;
-		GLfloat y_translation = 1.0f*0.4;//*(tree_height+0.1);
+		GLfloat angle = 60.0f * (1+tree_height) * 0.2;
+		GLfloat y_translation = 1.0f*0.4;
+		if (tree_height == 1 && tree_depth == total_depth) {
+			y_translation *= 2;
+		}
 		if (i == 1) {
 			angle *= -1;
-			y_translation = 3.0f*0.4;//*(tree_height+0.1);
+			y_translation *= 2;
 		}
-		Branch* branch = new Branch(angle, y_translation, root_branch, (tree_depth*0.5f+tree_height*0.3));
+		Branch* branch = new Branch(angle, y_translation, root_branch, 1.0f, strong_factor+(tree_depth/5));
 		branchList.push_back(branch);
 
-		buildTree(branch, tree_depth-1, tree_height);
+		buildTree(branch, tree_depth-1, tree_height, total_depth);
 
 	}
 }
