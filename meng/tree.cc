@@ -8,28 +8,28 @@ Tree::Tree(int init_depth, int init_height, GLfloat init_x_pos, GLfloat init_z_p
 	branchTexture = Texture("textures/cortex.bmp");
 	branchTexture.LoadTexture();
 
-	depth = init_depth;
-	height = init_height;
+	max_depth = init_depth;
+	max_height = init_height;
 	x_pos = init_x_pos;
 	z_pos = init_z_pos;
 	strong_factor = init_strong_factor;
 
 	// cortex
-	Branch* cortex = new Branch(0.0f, -1.0f, 2.0f, x_pos, z_pos, strong_factor+(depth/5));
+	Branch* cortex = new Branch(0.0f, -1.0f, 2.0f, x_pos, z_pos, strong_factor+(max_depth/5));
 	branchList.push_back(cortex);
 
 	// root branch
-	Branch* root_branch = new Branch(0.0f, 2.0f, 1.0f, x_pos, z_pos, strong_factor+(depth/5));
+	Branch* root_branch = new Branch(0.0f, 2.0f, 1.0f, x_pos, z_pos, strong_factor+(max_depth/5));
 	branchList.push_back(root_branch);
 
 
 	// // build the tree per level of height given depth
 	Branch* level_root_branch = root_branch;
-	for (int h=1; h <= height; h++) {
-		buildTree(level_root_branch, depth, h, depth);
+	for (int h=1; h <= max_height; h++) {
+		buildTree(level_root_branch, max_depth, h, max_depth);
 
-		if (h < height) {
-			level_root_branch = new Branch(0.0f, 2.0f+h*2.0f, 1.0f, x_pos, z_pos, strong_factor+(depth/5));
+		if (h < max_height) {
+			level_root_branch = new Branch(0.0f, 2.0f+h*2.0f, 1.0f, x_pos, z_pos, strong_factor+(max_depth/5));
 			branchList.push_back(level_root_branch);
 		}
 	}
@@ -168,7 +168,8 @@ void Tree::CreateCylinderBranchMesh() {
 }
 
 void Tree::renderTree(GLuint uniformModel, GLuint uniformView, GLuint uniformProjection, glm::mat4x4 projection) {
-	for (int i = 0; i < branchList.size(); i++) {
+	//for (int i = 0; i < branchList.size(); i++) {
+	for (int i = 0; i < numBranchRendered; i++) {
 		CreateCylinderBranchMesh();
 		Branch* curr_branch = branchList[i];
 
@@ -189,50 +190,29 @@ void Tree::keyControl(bool* keys) {
 }
 
 void Tree::growUpward(bool* keys) {
-	
+	numBranchRendered += 2;
+
+	if (numBranchRendered > (int)branchList.size()) {
+		numBranchRendered = (int)branchList.size();
+	}
+	else if (numBranchRendered < 0) {
+		numBranchRendered = 0;
+	}
+
+
 }
 
 void Tree::growDownward(bool* keys) {
-	
+	numBranchRendered -= 2;
+
+	if (numBranchRendered > (int)branchList.size()) {
+		numBranchRendered = (int)branchList.size();
+	}
+	else if (numBranchRendered < 0) {
+		numBranchRendered = 0;
+	}
 }
 
 Tree::~Tree() {
 }
-
-
-
-
-
-
-
-
-
-
-// void SudoCreateChild(Tree& tree, const glm::mat4& m2w_noscale, const int depth)
-// {
-// 	int MAX_DEPTH = 3;
-// 	int CHILDREN_NUMBER = 2;
-// 	GLfloat PI = 3.14;
-
-//     if(depth>=MAX_DEPTH){
-//         return;
-//     }
-//     /// Creates the M2W matrix
-//     glm::mat4 m2w=m2w_noscale * glm::mat4(1.0);*(1/depth);
-//     /// Draw the branch
-//     renderBranch(m2w);
-//     /// Create the children branches
-//     for(int i=0; i< CHILDREN_NUMBER; ++i){
-//         float angle=(2.0f*PI/CHILDREN_NUMBER)*i;
-//         /// Initial rotation of PI/4 plus equal rotation between siblins
-// 		glm::mat4 rotation = glm::mat4(1.0);
-//         rotation=glm::rotate(rotation, angle, glm::vec3(0,1,0));
-// 		rotation = glm::rotate(rotation, PI*0.25, glm::vec3(1,0,0));
-//         /// Size of the branch is 1/depth
-// 		glm::mat4 translation = glm::mat4(1.0);
-//         translation = glm::translate(translation, glm::vec3(glm::vec3(0,1,0)*(1/(depth+1))));
-//         /// Recursively create the branches
-//         SudoCreateChild(m2w_noscale*translation*rotation, depth+1);
-//     }
-// }
 

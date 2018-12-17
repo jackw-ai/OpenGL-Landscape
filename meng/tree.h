@@ -26,11 +26,12 @@ private:
 	void growUpward(bool* keys);
 	void growDownward(bool* keys);
 
-	int depth = 3;
-	int height = 3;
+	int max_depth = 3;
+	int max_height = 3;
 	int strong_factor = 1;
 	GLfloat x_pos = 0.0f;
 	GLfloat z_pos = 0.0f;
+	int numBranchRendered = 0;
 	std::vector<Branch*> branchList;
 	std::vector<Mesh*> treeMeshList;
 	Texture branchTexture;

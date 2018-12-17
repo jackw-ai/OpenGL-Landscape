@@ -182,9 +182,9 @@ int main()
 
 	CreateObjects();
 	std::cout << "objects created..." << std::endl;
-	Tree tree1(6, 2, 1.0f, 1.0f);
-	Tree tree2(2, 2, 5.0f, 8.0f);
-	Tree tree3(2, 3, -7.0f, 5.0f);
+	Tree tree1(4, 3, 1.0f, 1.0f);
+	Tree tree2(2, 3, 5.0f, 8.0f);
+	Tree tree3(3, 3, -7.0f, 5.0f);
 	CreateShaders();
 
 	camera = Camera(glm::vec3(0.0f, 0.0f, 15.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 10.0f, 5.0f, 0.02f);
@@ -221,7 +221,9 @@ int main()
 
 		camera.keyControl(mainWindow.getsKeys(), deltaTime);
 		camera.mouseControl(mainWindow.getXChange(), mainWindow.getYChange());
-		//tree.keyControl(mainWindow.getsKeys());
+		tree1.keyControl(mainWindow.getsKeys());
+		tree2.keyControl(mainWindow.getsKeys());
+		tree3.keyControl(mainWindow.getsKeys());
 
 		if (direction) {
 			triOffset += triIncrement;
