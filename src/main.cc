@@ -56,7 +56,7 @@ float skyboxSize = 50.0f;
 float floorSize = 30.0f;
 
 // vegetation
-int grassCount = 10000;
+int grassCount = 1000;
 Grass grass;
 /*
  
@@ -524,6 +524,7 @@ int main()
         grassShader->setMat4("view", camera.calculateViewMatrix());
         
         grass.renderGrass(*grassShader);
+        
         /*
         glBindVertexArray(grassVAO);
         for (GLuint i = 0; i < vegetation.size(); i++)
