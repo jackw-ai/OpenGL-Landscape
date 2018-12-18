@@ -15,6 +15,8 @@ public:
 	void UseTexture();
 	void ClearTexture();
 
+    GLuint getTexID();
+    
 	~Texture();
 
 private:

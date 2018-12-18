@@ -84,6 +84,10 @@ void Texture::ClearTexture() {
 	fileLocation = "";
 }
 
+GLuint Texture::getTexID(){
+    return textureID;
+}
+
 Texture::~Texture() {
 	ClearTexture();
 }

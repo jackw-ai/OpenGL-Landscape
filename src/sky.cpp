@@ -1,8 +1,7 @@
 #include "sky.h"
 
 Sky::Sky() {
-    
-   
+
     faces.push_back( "./textures/sky/right.tga");
     faces.push_back("./textures/sky/left.tga");
     faces.push_back("./textures/sky/up.tga");
@@ -10,12 +9,139 @@ Sky::Sky() {
     faces.push_back("./textures/sky/front.tga");
     faces.push_back("./textures/sky/back.tga");
 
-    
     textureID = 0;
+    float skyboxSize = 50.0f;
+    
+    skyboxVertices = {
+        // positions
+        -skyboxSize,  skyboxSize, -skyboxSize,
+        -skyboxSize, -skyboxSize, -skyboxSize,
+        skyboxSize, -skyboxSize, -skyboxSize,
+        skyboxSize, -skyboxSize, -skyboxSize,
+        skyboxSize,  skyboxSize, -skyboxSize,
+        -skyboxSize,  skyboxSize, -skyboxSize,
+        
+        -skyboxSize, -skyboxSize,  skyboxSize,
+        -skyboxSize, -skyboxSize, -skyboxSize,
+        -skyboxSize,  skyboxSize, -skyboxSize,
+        -skyboxSize,  skyboxSize, -skyboxSize,
+        -skyboxSize,  skyboxSize,  skyboxSize,
+        -skyboxSize, -skyboxSize,  skyboxSize,
+        
+        skyboxSize, -skyboxSize, -skyboxSize,
+        skyboxSize, -skyboxSize,  skyboxSize,
+        skyboxSize,  skyboxSize,  skyboxSize,
+        skyboxSize,  skyboxSize,  skyboxSize,
+        skyboxSize,  skyboxSize, -skyboxSize,
+        skyboxSize, -skyboxSize, -skyboxSize,
+        
+        -skyboxSize, -skyboxSize,  skyboxSize,
+        -skyboxSize,  skyboxSize,  skyboxSize,
+        skyboxSize,  skyboxSize,  skyboxSize,
+        skyboxSize,  skyboxSize,  skyboxSize,
+        skyboxSize, -skyboxSize,  skyboxSize,
+        -skyboxSize, -skyboxSize,  skyboxSize,
+        
+        -skyboxSize,  skyboxSize, -skyboxSize,
+        skyboxSize,  skyboxSize, -skyboxSize,
+        skyboxSize,  skyboxSize,  skyboxSize,
+        skyboxSize,  skyboxSize,  skyboxSize,
+        -skyboxSize,  skyboxSize,  skyboxSize,
+        -skyboxSize,  skyboxSize, -skyboxSize,
+        
+        -skyboxSize, -skyboxSize, -skyboxSize,
+        -skyboxSize, -skyboxSize,  skyboxSize,
+        skyboxSize, -skyboxSize, -skyboxSize,
+        skyboxSize, -skyboxSize, -skyboxSize,
+        -skyboxSize, -skyboxSize,  skyboxSize,
+        skyboxSize, -skyboxSize,  skyboxSize
+    };
+    
+}
+
+Sky::Sky(float skyboxSize) {
+    faces.push_back( "./textures/sky/right.tga");
+    faces.push_back("./textures/sky/left.tga");
+    faces.push_back("./textures/sky/up.tga");
+    faces.push_back("./textures/sky/down.tga");
+    faces.push_back("./textures/sky/front.tga");
+    faces.push_back("./textures/sky/back.tga");
+
+    textureID = 0;
+    
+    skyboxVertices = {
+        // positions
+        -skyboxSize,  skyboxSize, -skyboxSize,
+        -skyboxSize, -skyboxSize, -skyboxSize,
+        skyboxSize, -skyboxSize, -skyboxSize,
+        skyboxSize, -skyboxSize, -skyboxSize,
+        skyboxSize,  skyboxSize, -skyboxSize,
+        -skyboxSize,  skyboxSize, -skyboxSize,
+        
+        -skyboxSize, -skyboxSize,  skyboxSize,
+        -skyboxSize, -skyboxSize, -skyboxSize,
+        -skyboxSize,  skyboxSize, -skyboxSize,
+        -skyboxSize,  skyboxSize, -skyboxSize,
+        -skyboxSize,  skyboxSize,  skyboxSize,
+        -skyboxSize, -skyboxSize,  skyboxSize,
+        
+        skyboxSize, -skyboxSize, -skyboxSize,
+        skyboxSize, -skyboxSize,  skyboxSize,
+        skyboxSize,  skyboxSize,  skyboxSize,
+        skyboxSize,  skyboxSize,  skyboxSize,
+        skyboxSize,  skyboxSize, -skyboxSize,
+        skyboxSize, -skyboxSize, -skyboxSize,
+        
+        -skyboxSize, -skyboxSize,  skyboxSize,
+        -skyboxSize,  skyboxSize,  skyboxSize,
+        skyboxSize,  skyboxSize,  skyboxSize,
+        skyboxSize,  skyboxSize,  skyboxSize,
+        skyboxSize, -skyboxSize,  skyboxSize,
+        -skyboxSize, -skyboxSize,  skyboxSize,
+        
+        -skyboxSize,  skyboxSize, -skyboxSize,
+        skyboxSize,  skyboxSize, -skyboxSize,
+        skyboxSize,  skyboxSize,  skyboxSize,
+        skyboxSize,  skyboxSize,  skyboxSize,
+        -skyboxSize,  skyboxSize,  skyboxSize,
+        -skyboxSize,  skyboxSize, -skyboxSize,
+        
+        -skyboxSize, -skyboxSize, -skyboxSize,
+        -skyboxSize, -skyboxSize,  skyboxSize,
+        skyboxSize, -skyboxSize, -skyboxSize,
+        skyboxSize, -skyboxSize, -skyboxSize,
+        -skyboxSize, -skyboxSize,  skyboxSize,
+        skyboxSize, -skyboxSize,  skyboxSize
+    };
+}
+
+void Sky::buildSky(){
+    // skybox VAO, VBO
+    glGenVertexArrays(1, &skyboxVAO);
+    glGenBuffers(1, &skyboxVBO);
+    glBindVertexArray(skyboxVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(getVertices()) * 108, getVertices(), GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+}
+
+void Sky::renderSky(){
+    // skybox cube
+    glBindVertexArray(skyboxVAO);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+    glBindVertexArray(0);
+    glDepthFunc(GL_LESS); // set depth function back to default
 }
 
 GLuint Sky::getTexID(){
     return textureID;
+}
+
+GLfloat* Sky::getVertices(){
+    return skyboxVertices.data();
 }
 
 bool Sky::loadCubemap() {

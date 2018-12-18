@@ -31,6 +31,7 @@ Texture obj1Texture;
 Texture obj2Texture;
 Texture floorTexture;
 Texture branchTexture1;
+GLuint grassTexture;
 
 GLfloat deltaTime = 0.0f;
 GLfloat lastTime = 0.0f;
@@ -53,14 +54,22 @@ float minSize = 0.1f;
 float skyboxSize = 50.0f;
 float floorSize = 30.0f;
 
+// vegetation
+std::vector<glm::vec3> vegetation;
+int grassCount = 2000;
+static float rand_FloatRange(float a, float b);
+void generateGrass(int numGrass);
 
 // Vertex Shader
 static const char* vShader = "Shaders/shader.vert";
 static const char* vSkyShader = "Shaders/skyshader.vert";
+static const char* vGrShader = "Shaders/grass.vert";
+
 
 // Fragment Shader
 static const char* fShader = "Shaders/shader.frag";
 static const char* fSkyShader = "Shaders/skyshader.frag";
+static const char* fGrShader = "Shaders/grass.frag";
 
 void CreateObjects() {
 	unsigned int indices[] = {
@@ -84,13 +93,12 @@ void CreateObjects() {
 	};
 
 	GLfloat floorVertices[] = {
-		-floorSize, 0.0f, -floorSize,	0.0f, 0.0f,		0.0f, -1.0f, 0.0f,
-		floorSize, 0.0f, -floorSize,	floorSize, 0.0f,	0.0f, -1.0f, 0.0f,
-		-floorSize, 0.0f, floorSize,	0.0f, floorSize,	0.0f, -1.0f, 0.0f,
+		-floorSize, 0.0f, -floorSize,	0.0f, 0.0f,		        0.0f, -1.0f, 0.0f,
+		floorSize, 0.0f, -floorSize,	floorSize, 0.0f,	    0.0f, -1.0f, 0.0f,
+		-floorSize, 0.0f, floorSize,	0.0f, floorSize,	    0.0f, -1.0f, 0.0f,
 		floorSize, 0.0f, floorSize,		floorSize, floorSize,	0.0f, -1.0f, 0.0f
 	};
     
-
 	int segments = 10;
 	int num_cylinder_vertices = 4 * 10;
 	GLfloat cylinderVertices[40*8] = {};
@@ -154,6 +162,22 @@ void CreateObjects() {
 		cylinderIndices[num++] = n*4+3;	
 	}
 
+    // vegetation
+    generateGrass(grassCount);
+    /*
+    vegetation.push_back(glm::vec3(-1.5f,  -1.5f, -0.48f));
+    vegetation.push_back(glm::vec3( 1.5f,  -1.5f,  0.51f));
+    vegetation.push_back(glm::vec3( 0.0f,  -1.5f,  0.7f));
+    vegetation.push_back(glm::vec3(-0.3f,  -1.5f, -2.3f));
+    vegetation.push_back(glm::vec3( 2.5f,  -2.0f, -0.8f));
+    vegetation.push_back(glm::vec3( 0.5f,  -2.0f, -0.9f));
+    vegetation.push_back(glm::vec3( 0.2f,  -2.0f, -0.6f));
+    vegetation.push_back(glm::vec3( 0.6f,  -2.0f, -0.6f));
+    vegetation.push_back(glm::vec3( 0.5f,  -2.0f, -0.6f));
+    vegetation.push_back(glm::vec3( 0.5f,  -2.0f, -0.6f));
+    vegetation.push_back(glm::vec3( 0.5f,  -2.0f, -0.6f));
+     */
+    
 	Mesh *obj1 = new Mesh();
 	obj1->CreateMesh(vertices, indices, 32, 12);
 	meshList.push_back(obj1);
@@ -216,6 +240,58 @@ void keyboard(bool* keys, GLfloat deltaTime, Camera& camera, std::vector<Tree>& 
     }
 }
 
+static float rand_FloatRange(float a, float b)
+{
+    return ((b - a) * ((float)rand() / RAND_MAX)) + a;
+}
+
+void generateGrass(int numGrass){
+    
+    for (int i = 0; i < numGrass; i++){
+        float z = -1.5f;
+        float x = rand_FloatRange(-floorSize, floorSize);
+        float y = rand_FloatRange(-floorSize, floorSize);
+        vegetation.push_back(glm::vec3(x,  z,  y));
+    }
+}
+
+unsigned int loadGrass(char const * path)
+{
+    unsigned int textureID;
+    glGenTextures(1, &textureID);
+    
+    int width, height, nrComponents;
+    unsigned char *data = stbi_load(path, &width, &height, &nrComponents, 0);
+    if (data)
+    {
+        GLenum format;
+        if (nrComponents == 1)
+            format = GL_RED;
+        else if (nrComponents == 3)
+            format = GL_RGB;
+        else if (nrComponents == 4)
+            format = GL_RGBA;
+        
+        glBindTexture(GL_TEXTURE_2D, textureID);
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+        
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT); // for this tutorial: use GL_CLAMP_TO_EDGE to prevent semi-transparent borders. Due to interpolation it takes texels from next repeat
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        
+        stbi_image_free(data);
+    }
+    else
+    {
+        std::cout << "Texture failed to load at path: " << path << std::endl;
+        stbi_image_free(data);
+    }
+    
+    return textureID;
+}
+
 int main() 
 {
 	std::cout << "starting..." << std::endl;
@@ -247,59 +323,19 @@ int main()
 	branchTexture1 = Texture("textures/cortex.bmp");
 	branchTexture1.LoadTexture();
 	
+    /*
+    grassTexture = Texture("textures/grass.jpeg");
+    grassTexture.LoadTexture();
+     */
+    
+    grassTexture = loadGrass("textures/grass.png");
+    
 	std::cout << "finished loading texture..." << std::endl;
 
-    
     /* skybox */
     
-    // skybox vertices
-    GLfloat skyboxVertices[] = {
-        // positions
-        -skyboxSize,  skyboxSize, -skyboxSize,
-        -skyboxSize, -skyboxSize, -skyboxSize,
-        skyboxSize, -skyboxSize, -skyboxSize,
-        skyboxSize, -skyboxSize, -skyboxSize,
-        skyboxSize,  skyboxSize, -skyboxSize,
-        -skyboxSize,  skyboxSize, -skyboxSize,
-        
-        -skyboxSize, -skyboxSize,  skyboxSize,
-        -skyboxSize, -skyboxSize, -skyboxSize,
-        -skyboxSize,  skyboxSize, -skyboxSize,
-        -skyboxSize,  skyboxSize, -skyboxSize,
-        -skyboxSize,  skyboxSize,  skyboxSize,
-        -skyboxSize, -skyboxSize,  skyboxSize,
-        
-        skyboxSize, -skyboxSize, -skyboxSize,
-        skyboxSize, -skyboxSize,  skyboxSize,
-        skyboxSize,  skyboxSize,  skyboxSize,
-        skyboxSize,  skyboxSize,  skyboxSize,
-        skyboxSize,  skyboxSize, -skyboxSize,
-        skyboxSize, -skyboxSize, -skyboxSize,
-        
-        -skyboxSize, -skyboxSize,  skyboxSize,
-        -skyboxSize,  skyboxSize,  skyboxSize,
-        skyboxSize,  skyboxSize,  skyboxSize,
-        skyboxSize,  skyboxSize,  skyboxSize,
-        skyboxSize, -skyboxSize,  skyboxSize,
-        -skyboxSize, -skyboxSize,  skyboxSize,
-        
-        -skyboxSize,  skyboxSize, -skyboxSize,
-        skyboxSize,  skyboxSize, -skyboxSize,
-        skyboxSize,  skyboxSize,  skyboxSize,
-        skyboxSize,  skyboxSize,  skyboxSize,
-        -skyboxSize,  skyboxSize,  skyboxSize,
-        -skyboxSize,  skyboxSize, -skyboxSize,
-        
-        -skyboxSize, -skyboxSize, -skyboxSize,
-        -skyboxSize, -skyboxSize,  skyboxSize,
-        skyboxSize, -skyboxSize, -skyboxSize,
-        skyboxSize, -skyboxSize, -skyboxSize,
-        -skyboxSize, -skyboxSize,  skyboxSize,
-        skyboxSize, -skyboxSize,  skyboxSize
-    };
-    
     // skybox textures
-    Sky *sky = new Sky();
+    Sky *sky = new Sky(skyboxSize);
     sky->loadCubemap();
     GLuint cubemapTexture = sky->getTexID();
 
@@ -309,17 +345,52 @@ int main()
     skyShader->UseShader();
     skyShader->setInt("skybox", 0);
     
+    /*
     // skybox VAO
     GLuint skyboxVAO, skyboxVBO;
     glGenVertexArrays(1, &skyboxVAO);
     glGenBuffers(1, &skyboxVBO);
     glBindVertexArray(skyboxVAO);
     glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(sky->getVertices()) * 108, sky->getVertices(), GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    
+    */
+    sky->buildSky();
     std::cout << "finished building sky..." << std::endl;
+
+    /* vegetation */
+    
+    
+    // grass shader
+    Shader *grassShader = new Shader();
+    grassShader->CreateFromFiles(vGrShader, fGrShader);
+    grassShader->UseShader();
+    grassShader->setInt("theTexture", 0);
+
+    float grassVertices[] = {
+        // positions         // texture Coords (swapped y coordinates because texture is flipped upside down)
+        0.0f,  0.5f,  0.0f,  0.0f,  0.0f,
+        0.0f, -0.5f,  0.0f,  0.0f,  1.0f,
+        1.0f, -0.5f,  0.0f,  1.0f,  1.0f,
+        
+        0.0f,  0.5f,  0.0f,  0.0f,  0.0f,
+        1.0f, -0.5f,  0.0f,  1.0f,  1.0f,
+        1.0f,  0.5f,  0.0f,  1.0f,  0.0f
+    };
+    
+    // grass VAO
+    GLuint grassVAO, grassVBO;
+    glGenVertexArrays(1, &grassVAO);
+    glGenBuffers(1, &grassVBO);
+    glBindVertexArray(grassVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, grassVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(grassVertices), grassVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glBindVertexArray(0);
 
     
 	GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0;
@@ -436,6 +507,24 @@ int main()
         for (int i = 0; i < trees.size(); i++)
             trees[i].renderTree(uniformModel, uniformView, uniformProjection, projection);
        
+        // vegetation
+        glBindTexture(GL_TEXTURE_2D, grassTexture);
+        glBindVertexArray(grassVAO);
+        grassShader->UseShader();
+
+        grassShader->setMat4("projection", projection);
+        grassShader->setMat4("view", camera.calculateViewMatrix());
+        for (GLuint i = 0; i < vegetation.size(); i++)
+        {
+            model = glm::mat4(1.0);
+            model = glm::translate(model, vegetation[i]);
+
+            grassShader->setMat4("model", model);
+            
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+            //glBindVertexArray(0);
+
+        }
 
         // draw skybox as last
         glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
@@ -444,21 +533,14 @@ int main()
         skyShader->setMat4("view", view);
         skyShader->setMat4("projection", projection);
         
-        // skybox cube
-        glBindVertexArray(skyboxVAO);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);
-        glDepthFunc(GL_LESS); // set depth function back to default
-        
+        sky->renderSky();
+
         
 		glUseProgram(0);
 
 		mainWindow.swapBuffers();
 	}
 
-    glDeleteBuffers(1, &skyboxVAO);
     glfwTerminate();
 
 	return 0;
