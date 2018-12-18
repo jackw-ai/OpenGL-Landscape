@@ -13,10 +13,10 @@
 #include "GLM/gtc/type_ptr.hpp"
 
 #include "window.h"
-#include "shader.h"
 #include "camera.h"
 #include "tree.h"
 #include "sky.h"
+#include "grass.h"
 
 const float toRadians = 3.14159265f / 180.0f;
 
@@ -55,10 +55,15 @@ float skyboxSize = 50.0f;
 float floorSize = 30.0f;
 
 // vegetation
-std::vector<glm::vec3> vegetation;
 int grassCount = 2000;
-static float rand_FloatRange(float a, float b);
+Grass grass;
+/*
+ 
+ std::vector<glm::vec3> vegetation;
+
+ static float rand_FloatRange(float a, float b);
 void generateGrass(int numGrass);
+*/
 
 // Vertex Shader
 static const char* vShader = "Shaders/shader.vert";
@@ -163,20 +168,8 @@ void CreateObjects() {
 	}
 
     // vegetation
-    generateGrass(grassCount);
-    /*
-    vegetation.push_back(glm::vec3(-1.5f,  -1.5f, -0.48f));
-    vegetation.push_back(glm::vec3( 1.5f,  -1.5f,  0.51f));
-    vegetation.push_back(glm::vec3( 0.0f,  -1.5f,  0.7f));
-    vegetation.push_back(glm::vec3(-0.3f,  -1.5f, -2.3f));
-    vegetation.push_back(glm::vec3( 2.5f,  -2.0f, -0.8f));
-    vegetation.push_back(glm::vec3( 0.5f,  -2.0f, -0.9f));
-    vegetation.push_back(glm::vec3( 0.2f,  -2.0f, -0.6f));
-    vegetation.push_back(glm::vec3( 0.6f,  -2.0f, -0.6f));
-    vegetation.push_back(glm::vec3( 0.5f,  -2.0f, -0.6f));
-    vegetation.push_back(glm::vec3( 0.5f,  -2.0f, -0.6f));
-    vegetation.push_back(glm::vec3( 0.5f,  -2.0f, -0.6f));
-     */
+    grass = Grass();
+    grass.generateGrass(grassCount, floorSize);
     
 	Mesh *obj1 = new Mesh();
 	obj1->CreateMesh(vertices, indices, 32, 12);
@@ -240,6 +233,7 @@ void keyboard(bool* keys, GLfloat deltaTime, Camera& camera, std::vector<Tree>& 
     }
 }
 
+/*
 static float rand_FloatRange(float a, float b)
 {
     return ((b - a) * ((float)rand() / RAND_MAX)) + a;
@@ -291,7 +285,7 @@ unsigned int loadGrass(char const * path)
     
     return textureID;
 }
-
+*/
 int main() 
 {
 	std::cout << "starting..." << std::endl;
@@ -328,7 +322,8 @@ int main()
     grassTexture.LoadTexture();
      */
     
-    grassTexture = loadGrass("textures/grass.png");
+    grass.loadGrassTex("textures/grass.png");
+    grassTexture = grass.getTexID();
     
 	std::cout << "finished loading texture..." << std::endl;
 
@@ -356,18 +351,21 @@ int main()
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     */
+    
     sky->buildSky();
     std::cout << "finished building sky..." << std::endl;
 
     /* vegetation */
     
-    
+    grass.buildGrass();
+
     // grass shader
     Shader *grassShader = new Shader();
     grassShader->CreateFromFiles(vGrShader, fGrShader);
     grassShader->UseShader();
     grassShader->setInt("theTexture", 0);
 
+    /*
     float grassVertices[] = {
         // positions         // texture Coords (swapped y coordinates because texture is flipped upside down)
         0.0f,  0.5f,  0.0f,  0.0f,  0.0f,
@@ -378,7 +376,9 @@ int main()
         1.0f, -0.5f,  0.0f,  1.0f,  1.0f,
         1.0f,  0.5f,  0.0f,  1.0f,  0.0f
     };
+    */
     
+    /*
     // grass VAO
     GLuint grassVAO, grassVBO;
     glGenVertexArrays(1, &grassVAO);
@@ -391,7 +391,7 @@ int main()
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     glBindVertexArray(0);
-
+    */
     
 	GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0;
 	glm::mat4 projection = glm::perspective(45.0f, (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 100.0f);
@@ -509,11 +509,14 @@ int main()
        
         // vegetation
         glBindTexture(GL_TEXTURE_2D, grassTexture);
-        glBindVertexArray(grassVAO);
         grassShader->UseShader();
-
+    
         grassShader->setMat4("projection", projection);
         grassShader->setMat4("view", camera.calculateViewMatrix());
+        
+        grass.renderGrass(*grassShader);
+        /*
+        glBindVertexArray(grassVAO);
         for (GLuint i = 0; i < vegetation.size(); i++)
         {
             model = glm::mat4(1.0);
@@ -522,9 +525,10 @@ int main()
             grassShader->setMat4("model", model);
             
             glDrawArrays(GL_TRIANGLES, 0, 6);
-            //glBindVertexArray(0);
+            glBindVertexArray(0);
 
         }
+         */
 
         // draw skybox as last
         glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
@@ -535,7 +539,6 @@ int main()
         
         sky->renderSky();
 
-        
 		glUseProgram(0);
 
 		mainWindow.swapBuffers();

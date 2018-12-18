@@ -1,3 +1,7 @@
+#ifndef SHADER_H
+#define SHADER_H
+#endif
+
 #include <stdio.h>
 #include <string>
 #include <iostream>
