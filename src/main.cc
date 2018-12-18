@@ -30,7 +30,8 @@ Camera camera;
 Texture obj1Texture;
 Texture obj2Texture;
 Texture floorTexture;
-Texture branchTexture1;
+Texture branchTexture;
+Texture leafTexture;
 GLuint grassTexture;
 
 GLfloat deltaTime = 0.0f;
@@ -286,19 +287,30 @@ unsigned int loadGrass(char const * path)
     return textureID;
 }
 */
+
+void loadTexture() {
+	obj1Texture = Texture("textures/blurry-bright.jpg");
+	obj1Texture.LoadTexture();
+	obj2Texture = Texture("textures/brick.png");
+	obj2Texture.LoadTextureA();
+	floorTexture = Texture("textures/grass.jpeg");
+	floorTexture.LoadTexture();
+
+	branchTexture = Texture("textures/cortex.bmp");
+	branchTexture.LoadTexture();
+	leafTexture = Texture("textures/leaf.jpeg");
+	leafTexture.LoadTexture();
+
+	// grass.loadGrassTex("textures/grass.png");
+    // grassTexture = grass.getTexID();
+}
+
 int main() 
 {
 	std::cout << "starting..." << std::endl;
 
 	mainWindow = Window(1200, 800);
 	mainWindow.Initialise();
-
-	CreateObjects();
-	std::cout << "objects created..." << std::endl;
-    
-	Tree tree1(4, 3, 1.0f, 1.0f);
-	Tree tree2(2, 3, 5.0f, 8.0f);
-	Tree tree3(3, 3, -7.0f, 5.0f);
     
 	CreateShaders();
 
@@ -306,25 +318,15 @@ int main()
 
 	std::cout << "camera finished..." << std::endl;
 
-	obj1Texture = Texture("textures/blurry-bright.jpg");
-	obj1Texture.LoadTexture();
-	obj2Texture = Texture("textures/brick.png");
-	obj2Texture.LoadTextureA();
-	floorTexture = Texture("textures/grass.jpeg");
-	floorTexture.LoadTexture();
-	std::cout << "first textures finished..." << std::endl;
-
-	branchTexture1 = Texture("textures/cortex.bmp");
-	branchTexture1.LoadTexture();
+	grass.loadGrassTex("textures/grass.png");
+    grassTexture = grass.getTexID();
 	
     /*
     grassTexture = Texture("textures/grass.jpeg");
     grassTexture.LoadTexture();
      */
-    
-    grass.loadGrassTex("textures/grass.png");
-    grassTexture = grass.getTexID();
-    
+
+	loadTexture();
 	std::cout << "finished loading texture..." << std::endl;
 
     /* skybox */
@@ -396,13 +398,20 @@ int main()
 	GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0;
 	glm::mat4 projection = glm::perspective(45.0f, (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 100.0f);
 
+	CreateObjects();
+    
+	Tree tree1(4, 3, &branchTexture, &leafTexture, 1.0f, 1.0f);
+	Tree tree2(2, 3, &branchTexture, &leafTexture, 5.0f, 8.0f);
+	Tree tree3(3, 3, &branchTexture, &leafTexture, -7.0f, 5.0f);
+	
     // store trees in vector
     std::vector<Tree> trees;
 
     trees.push_back(tree1);
     trees.push_back(tree2);
     trees.push_back(tree3);
-    
+
+	std::cout << "objects created..." << std::endl;
     std::cout << "entering loop" << std::endl;
 
 	// Loop until window closed
@@ -418,12 +427,12 @@ int main()
         // mouse controls
         camera.mouseControl(mainWindow.getXChange(), mainWindow.getYChange());
         
-        /*
-		camera.keyControl(mainWindow.getsKeys(), deltaTime);
-		tree1.keyControl(mainWindow.getsKeys());
-		tree2.keyControl(mainWindow.getsKeys());
-		tree3.keyControl(mainWindow.getsKeys());
-        */
+        
+		// camera.keyControl(mainWindow.getsKeys(), deltaTime);
+		// tree1.keyControl(mainWindow.getsKeys());
+		// tree2.keyControl(mainWindow.getsKeys());
+		// tree3.keyControl(mainWindow.getsKeys());
+        
         
         keyboard(mainWindow.getsKeys(), deltaTime, camera, trees);
         
@@ -500,7 +509,7 @@ int main()
 		model = glm::translate(model, glm::vec3(1.0f, -2.0f, 2.5f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
-		branchTexture1.UseTexture();
+		branchTexture.UseTexture();
 		meshList[3]->RenderMesh();
 
         // render all trees

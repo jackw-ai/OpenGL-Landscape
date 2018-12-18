@@ -2,6 +2,7 @@
 #include <iostream>
 
 Branch::Branch() {
+  leaf = false;
   angle = 0.0f;
   y_translation = 0.0f;
   parentBranch = NULL;
@@ -11,7 +12,8 @@ Branch::Branch() {
 }
 
 Branch::Branch(GLfloat init_angle, GLfloat init_y_translation, GLfloat init_length_scale, 
-                GLfloat x_pos, GLfloat z_pos, int strong_factor) {
+                GLfloat x_pos, GLfloat z_pos, int strong_factor, bool init_leaf) {
+  leaf = init_leaf;
   angle = init_angle;
   y_translation = init_y_translation;
   parentBranch = NULL;
@@ -23,7 +25,9 @@ Branch::Branch(GLfloat init_angle, GLfloat init_y_translation, GLfloat init_leng
   model_scaled = glm::scale(model_no_scale, glm::vec3(0.4f*(strong_factor*0.7), length_scale, 0.4f*(strong_factor*0.7)));
 }
 
-Branch::Branch(GLfloat init_angle, GLfloat init_y_translation, Branch* init_parent, GLfloat init_length_scale, int strong_factor) {
+Branch::Branch(GLfloat init_angle, GLfloat init_y_translation, Branch* init_parent, 
+                GLfloat init_length_scale, int strong_factor, bool init_leaf) {
+  leaf = init_leaf;
   angle = init_angle;
   y_translation = init_y_translation;
   length_scale = init_length_scale;
@@ -45,7 +49,12 @@ Branch::Branch(GLfloat init_angle, GLfloat init_y_translation, Branch* init_pare
   else {
     model_no_scale = glm::rotate(model_no_scale, -glm::radians(angle), rotationAxis);
   }
-  model_no_scale = glm::rotate(model_no_scale, glm::radians(90.f), glm::vec3(0.0f, 1.0f, 0.0f));	
+  if(!leaf) {
+    model_no_scale = glm::rotate(model_no_scale, glm::radians(90.f), glm::vec3(0.0f, 1.0f, 0.0f));
+  }
+  else {
+    model_no_scale = glm::rotate(model_no_scale, glm::radians(30.f), glm::vec3(0.0f, 1.0f, 0.0f));
+  }
   model_scaled = glm::scale(model_no_scale, glm::vec3(0.2f*(strong_factor*0.7), length_scale, 0.2f*(strong_factor*0.7)));
 }
 

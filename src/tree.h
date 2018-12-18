@@ -11,12 +11,15 @@
 class Tree {
 public:
 	Tree();
-	Tree(int depth, int height,  GLfloat init_x_pos=0.0f, GLfloat init_z_pos=0.0f, int init_strong_factor=1);
+	Tree(int depth, int height, Texture* init_branchTexture, Texture* init_leafTexture,
+			GLfloat init_x_pos=0.0f, GLfloat init_z_pos=0.0f, int init_strong_factor=1);
 
 
     void CreateCubeBranchMesh();
 	void CreateCylinderBranchMesh();
+	void CreateTriangleLeavesMesh();
 	void buildTree(Branch* root_branch, int tree_depth, int tree_height, int total_depth);
+	void buildLeaves(Branch* root_branch);
 	void renderTree(GLuint uniformModel, GLuint uniformView, GLuint uniformProjection, glm::mat4x4 projection);
 	void keyControl(bool* keys);
 
@@ -34,5 +37,11 @@ private:
 	int numBranchRendered = 0;
 	std::vector<Branch*> branchList;
 	std::vector<Mesh*> treeMeshList;
-	Texture branchTexture;
+	
+	Texture* branchTexture;
+	Texture* leafTexture;
+
+	bool render_leaves;
+  	int num_leaves=3;
+  	int leaves_color;
 };

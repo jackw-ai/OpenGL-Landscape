@@ -4,9 +4,12 @@
 Tree::Tree() {
 }
 
-Tree::Tree(int init_depth, int init_height, GLfloat init_x_pos, GLfloat init_z_pos, int init_strong_factor) {
-	branchTexture = Texture("textures/cortex.bmp");
-	branchTexture.LoadTexture();
+Tree::Tree(int init_depth, int init_height, Texture* init_branchTexture, Texture* init_leafTexture,
+			GLfloat init_x_pos, GLfloat init_z_pos, int init_strong_factor) {
+	branchTexture = init_branchTexture;
+	leafTexture = init_leafTexture;
+	branchTexture->LoadTexture();
+	leafTexture->LoadTexture();
 
 	max_depth = init_depth;
 	max_height = init_height;
@@ -22,7 +25,6 @@ Tree::Tree(int init_depth, int init_height, GLfloat init_x_pos, GLfloat init_z_p
 	Branch* root_branch = new Branch(0.0f, 2.0f, 1.0f, x_pos, z_pos, strong_factor+(max_depth/5));
 	branchList.push_back(root_branch);
 
-
 	// // build the tree per level of height given depth
 	Branch* level_root_branch = root_branch;
 	for (int h=1; h <= max_height; h++) {
@@ -37,6 +39,7 @@ Tree::Tree(int init_depth, int init_height, GLfloat init_x_pos, GLfloat init_z_p
 
 void Tree::buildTree(Branch* root_branch, int tree_depth, int tree_height, int total_depth) {
 	if (tree_depth == 0) {
+		buildLeaves(root_branch);	
 		return;
 	}
 
@@ -55,8 +58,18 @@ void Tree::buildTree(Branch* root_branch, int tree_depth, int tree_height, int t
 		branchList.push_back(branch);
 
 		buildTree(branch, tree_depth-1, tree_height, total_depth);
-
 	}
+}
+
+void Tree::buildLeaves(Branch* root_branch) {
+	GLfloat angle = 60.0f;
+	GLfloat y_translation = 0.5f*0.1;
+	for (int i = 0; i < num_leaves; i++) {
+		angle *= -1;
+		y_translation += 0.5f*0.5;
+		Branch* branch = new Branch(angle, y_translation, root_branch, 0.2f, 1, true);
+		branchList.push_back(branch);
+	}	
 }
 
 void Tree::CreateCubeBranchMesh() {
@@ -167,15 +180,48 @@ void Tree::CreateCylinderBranchMesh() {
 	treeMeshList.push_back(cylinder);
 }
 
+void Tree::CreateTriangleLeavesMesh() {
+	unsigned int indices[] = {
+		0, 1, 2,
+		0, 3, 2
+	};
+
+	GLfloat vertices[] = {
+	//	x      y      z			u	  v			nx	  ny    nz
+		0.0f, 1.0f, -0.0f,	0.0f, 0.0f,		0.0f, 0.0f, 0.0f,
+		-0.5f, 0.0f, 0.0f,		0.5f, 0.0f,		0.0f, 0.0f, 0.0f,
+		0.0f, -1.0f, 0.0f,		1.0f, 0.0f,		0.0f, 0.0f, 0.0f,
+		0.5f, 0.0f, 0.0f,		0.5f, 1.0f,		0.0f, 0.0f, 0.0f
+	};
+
+	Mesh* leaf = new Mesh();
+	leaf->CreateMesh(vertices, indices, 32, 6);
+	treeMeshList.push_back(leaf);
+}
+
 void Tree::renderTree(GLuint uniformModel, GLuint uniformView, GLuint uniformProjection, glm::mat4x4 projection) {
-	//for (int i = 0; i < branchList.size(); i++) {
-	for (int i = 0; i < numBranchRendered; i++) {
-		CreateCylinderBranchMesh();
+	int rendered = 0;
+	for (int i = 0; i < branchList.size(); i++) {
+		if (rendered == numBranchRendered) {
+			break;
+		}
 		Branch* curr_branch = branchList[i];
 
-		curr_branch->renderBranch(uniformModel, uniformProjection, projection);
-		branchTexture.UseTexture();
-		treeMeshList[i]->RenderMesh();
+		if (curr_branch->leaf == true) {
+			if (render_leaves) {
+				CreateTriangleLeavesMesh();
+				curr_branch->renderBranch(uniformModel, uniformProjection, projection);
+				leafTexture->UseTexture();
+				treeMeshList[treeMeshList.size()-1]->RenderMesh();
+			}
+		}
+		else{
+			CreateCylinderBranchMesh();
+			curr_branch->renderBranch(uniformModel, uniformProjection, projection);
+			branchTexture->UseTexture();
+			rendered++;
+			treeMeshList[treeMeshList.size()-1]->RenderMesh();
+		}
 	}
 }
 
@@ -188,6 +234,11 @@ void Tree::keyControl(bool* keys) {
 	if (keys[GLFW_KEY_B]) {
 		growDownward(keys);
 	}
+
+	if (keys[GLFW_KEY_L]) {
+		std::cout << "toggle leaves" << std::endl;
+		render_leaves = !render_leaves;
+	}
 }
 
 void Tree::growUpward(bool* keys) {
@@ -199,8 +250,6 @@ void Tree::growUpward(bool* keys) {
 	else if (numBranchRendered < 0) {
 		numBranchRendered = 0;
 	}
-
-
 }
 
 void Tree::growDownward(bool* keys) {
