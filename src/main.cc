@@ -311,7 +311,8 @@ int main()
 
 	mainWindow = Window(1200, 800);
 	mainWindow.Initialise();
-    
+
+	CreateObjects();
 	CreateShaders();
 
 	camera = Camera(glm::vec3(0.0f, 0.0f, 15.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 10.0f, 5.0f, 0.02f);
@@ -397,8 +398,6 @@ int main()
     
 	GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0;
 	glm::mat4 projection = glm::perspective(45.0f, (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 100.0f);
-
-	CreateObjects();
     
 	Tree tree1(4, 3, &branchTexture, &leafTexture, 1.0f, 1.0f);
 	Tree tree2(2, 3, &branchTexture, &leafTexture, 5.0f, 8.0f);
