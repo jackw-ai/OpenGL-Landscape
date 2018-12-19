@@ -17,4 +17,20 @@ Be sure to have the packages installed. The versions included in the repo requir
 
 The project was built on macOS Mojave. The program has not been tested on other machines or operating systems.
 
+## Controls
 
+The following keyboard controls are supported:
+
+ `R`: Toggle the rotation of world view 
+ `Right/Left Arrow`: Change the rotation speed
+ `W` : Zoom in/ walk forward
+ `S` : Zoom out/ walk backward
+ `A` : Move camera to the left
+ `D` : Move camera to the right 
+ `L` : Toggle leaves
+ `G` : Grow trees upward  
+ `B` : Regress trees downward
+ `A` : Adding more trees (Three instead of one for now)
+
+## Future Work
+Adding hieghtmap terrain, water, wind, tree physics, environment mapping etc.
