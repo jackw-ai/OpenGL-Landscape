@@ -1,7 +1,7 @@
 # OpenGL Natural Landscape
 Landscape scene rendered in OpenGL. By Meng Dong and Tinda Wang.
 
-![Alt text](\screenshotsstruct.png?raw=true "Code Structure")
+![Alt text](screenshots/struct.png?raw=true "Code Structure")
 ## Requirements
 `C++ 11` or higher required. Packages `GLM`, `GLEW`, `GLFW` included in the repo along with the `stb_image` open source public image loader.
 
