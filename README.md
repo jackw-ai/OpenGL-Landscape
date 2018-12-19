@@ -6,8 +6,11 @@ Landscape scene rendered in OpenGL. By Meng Dong and Tinda Wang.
 
 ## Run
 To run the program on macOS,
+
 ``` cd src ```
+
 ``` make```
+
 ```./main```
 
 Be sure to have the packages installed. The versions included in the repo require cmake to install.
