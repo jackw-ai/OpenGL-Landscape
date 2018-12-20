@@ -117,8 +117,8 @@ void addTrees(){
     float x, z;
     x = rand_FloatRange(-floorSize, floorSize);
     z = rand_FloatRange(-floorSize, floorSize);
-    int thickness = (int) rand_FloatRange(1.0, 6.0);
-    Tree tree(thickness, 3, &branchTexture, &leafTexture, x, z);
+    int depth = (int) rand_FloatRange(1.0, 6.0);
+    Tree tree(depth, 3, &branchTexture, &leafTexture, x, z);
     trees.push_back(tree);
 }
 
