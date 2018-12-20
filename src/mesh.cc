@@ -63,8 +63,7 @@ void Mesh::ClearMesh() {
 }
 
 
-Mesh::~Mesh()
-{
+Mesh::~Mesh() {
 	ClearMesh();
 }
 

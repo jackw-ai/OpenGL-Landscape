@@ -18,6 +18,8 @@ public:
     void CreateCubeBranchMesh();
 	void CreateCylinderBranchMesh();
 	void CreateTriangleLeavesMesh();
+	void CreateFourLeavesMesh();
+	
 	void buildTree(Branch* root_branch, int tree_depth, int tree_height, int total_depth);
 	void buildLeaves(Branch* root_branch);
 	void renderTree(GLuint uniformModel, GLuint uniformView, GLuint uniformProjection, glm::mat4x4 projection);
@@ -41,7 +43,7 @@ private:
 	Texture* branchTexture;
 	Texture* leafTexture;
 
-	bool render_leaves;
-  	int num_leaves=3;
+	bool render_leaves=true;
+  	int num_leaves=10;
   	int leaves_color;
 };

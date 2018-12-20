@@ -1,4 +1,5 @@
 #include "branch.h"
+#include <cstdlib>
 #include <iostream>
 
 Branch::Branch() {
@@ -53,7 +54,7 @@ Branch::Branch(GLfloat init_angle, GLfloat init_y_translation, Branch* init_pare
     model_no_scale = glm::rotate(model_no_scale, glm::radians(90.f), glm::vec3(0.0f, 1.0f, 0.0f));
   }
   else {
-    model_no_scale = glm::rotate(model_no_scale, glm::radians(30.f), glm::vec3(0.0f, 1.0f, 0.0f));
+    model_no_scale = glm::rotate(model_no_scale, glm::radians(0.0f+rand()%100), glm::vec3(0.0f, 1.0f, 0.0f));
   }
   model_scaled = glm::scale(model_no_scale, glm::vec3(0.2f*(strong_factor*0.7), length_scale, 0.2f*(strong_factor*0.7)));
 }

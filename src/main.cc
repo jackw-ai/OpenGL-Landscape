@@ -27,8 +27,6 @@ std::vector<Shader> shaderList;
 
 Camera camera;
 
-Texture obj1Texture;
-Texture obj2Texture;
 Texture floorTexture;
 Texture branchTexture;
 Texture leafTexture;
@@ -78,21 +76,6 @@ static const char* fSkyShader = "Shaders/skyshader.frag";
 static const char* fGrShader = "Shaders/grass.frag";
 
 void CreateObjects() {
-	unsigned int indices[] = {
-		0, 3, 1,
-		1, 3, 2,
-		2, 3, 0,
-		0, 1, 2
-	};
-
-	GLfloat vertices[] = {
-	//	x      y      z			u	  v			nx	  ny    nz
-		-1.0f, -1.0f, -0.6f,	0.0f, 0.0f,		0.0f, 0.0f, 0.0f,
-		0.0f, -1.0f, 1.0f,		0.5f, 0.0f,		0.0f, 0.0f, 0.0f,
-		1.0f, -1.0f, -0.6f,		1.0f, 0.0f,		0.0f, 0.0f, 0.0f,
-		0.0f, 1.0f, 0.0f,		0.5f, 1.0f,		0.0f, 0.0f, 0.0f
-	};
-
 	unsigned int floorIndices[] = {
 		0, 2, 1,
 		1, 2, 3
@@ -104,93 +87,17 @@ void CreateObjects() {
 		-floorSize, 0.0f, floorSize,	0.0f, floorSize,	    0.0f, -1.0f, 0.0f,
 		floorSize, 0.0f, floorSize,		floorSize, floorSize,	0.0f, -1.0f, 0.0f
 	};
-    
-	int segments = 10;
-	int num_cylinder_vertices = 4 * 10;
-	GLfloat cylinderVertices[40*8] = {};
-
-	GLfloat const bottom = 0.0f;
-	GLfloat const top    = 1.0f;
-	int num= 0;
-	GLfloat r = 0.2f;
-	for(GLuint n = 0; n < segments; ++n) {
-		GLfloat const t0 = 2 * M_PI * (float)n / (float)segments;
-		GLfloat const t1 = 2 * M_PI * (float)(n+1) / (float)segments;
-		//quad vertex 0
-		cylinderVertices[num++] = sin(t0) * r;  // x
-		cylinderVertices[num++] = bottom;			// y
-		cylinderVertices[num++] = cos(t0) * r;	// z
-		cylinderVertices[num++] = 0.0f;
-		cylinderVertices[num++] = 0.0f;
-		cylinderVertices[num++] = 0.0f;
-		cylinderVertices[num++] = 0.0f;
-		cylinderVertices[num++] = 0.0f;
-		//quad vertex 1
-		cylinderVertices[num++] = sin(t1) * r;
-		cylinderVertices[num++] = bottom;
-		cylinderVertices[num++] = cos(t1) * r;
-		cylinderVertices[num++] = 0.5f;
-		cylinderVertices[num++] = 0.0f;
-		cylinderVertices[num++] = 0.0f;
-		cylinderVertices[num++] = 0.0f;
-		cylinderVertices[num++] = 0.0f;
-		//quad vertex 2
-		cylinderVertices[num++] = sin(t1) * r;
-		cylinderVertices[num++] = top;
-		cylinderVertices[num++] = cos(t1) * r;
-		cylinderVertices[num++] = 0.5f;
-		cylinderVertices[num++] = 1.0f;
-		cylinderVertices[num++] = 0.0f;
-		cylinderVertices[num++] = 0.0f;
-		cylinderVertices[num++] = 0.0f;
-		//quad vertex 3
-		cylinderVertices[num++] = sin(t0) * r;
-		cylinderVertices[num++] = top;
-		cylinderVertices[num++] = cos(t0) * r;
-		cylinderVertices[num++] = 0.0f;
-		cylinderVertices[num++] = 0.5f;
-		cylinderVertices[num++] = 0.0f;
-		cylinderVertices[num++] = 0.0f;
-		cylinderVertices[num++] = 0.0f;
-	}
-
-	num = 0;
-	int num_indices = 6*10;
-	unsigned int cylinderIndices[6*10] = {};
-	for(GLuint n = 0; n < segments; ++n) {
-		//quad vertex 0
-		cylinderIndices[num++] = n*4+0;  
-		cylinderIndices[num++] = n*4+1;			
-		cylinderIndices[num++] = n*4+2;	
-
-		cylinderIndices[num++] = n*4+0;  
-		cylinderIndices[num++] = n*4+2;		
-		cylinderIndices[num++] = n*4+3;	
-	}
 
     // vegetation
     grass = Grass();
     grass.generateGrass(grassCount, floorSize);
-    
-	Mesh *obj1 = new Mesh();
-	obj1->CreateMesh(vertices, indices, 32, 12);
-	meshList.push_back(obj1);
-
-	Mesh *obj2 = new Mesh();
-	obj2->CreateMesh(vertices, indices, 32, 12);
-	meshList.push_back(obj2);
 
 	Mesh *obj3 = new Mesh();
 	obj3->CreateMesh(floorVertices, floorIndices, 32, 6);
 	meshList.push_back(obj3);
-
-	Mesh *cylinder = new Mesh();
-	cylinder->CreateMesh(cylinderVertices, cylinderIndices, num_cylinder_vertices*8, num_indices);
-	meshList.push_back(cylinder);
 }
 
-void CreateShaders()
-{
+void CreateShaders() {
 	Shader *shader1 = new Shader();
 	shader1->CreateFromFiles(vShader, fShader);
 	shaderList.push_back(*shader1);
@@ -232,67 +139,19 @@ void keyboard(bool* keys, GLfloat deltaTime, Camera& camera, std::vector<Tree>& 
         std::cout << "Rotation speed decreased to " << rotateSpeed <<std::endl;
 
     }
-}
 
-/*
-static float rand_FloatRange(float a, float b)
-{
-    return ((b - a) * ((float)rand() / RAND_MAX)) + a;
-}
+	if (keys[GLFW_KEY_A]){
+        Tree tree2(2, 3, &branchTexture, &leafTexture, 5.0f, 8.0f);
+		Tree tree3(3, 3, &branchTexture, &leafTexture, -7.0f, 5.0f, 3);
 
-void generateGrass(int numGrass){
-    
-    for (int i = 0; i < numGrass; i++){
-        float z = -1.5f;
-        float x = rand_FloatRange(-floorSize, floorSize);
-        float y = rand_FloatRange(-floorSize, floorSize);
-        vegetation.push_back(glm::vec3(x,  z,  y));
+		trees.push_back(tree2);
+    	trees.push_back(tree3);
     }
-}
 
-unsigned int loadGrass(char const * path)
-{
-    unsigned int textureID;
-    glGenTextures(1, &textureID);
-    
-    int width, height, nrComponents;
-    unsigned char *data = stbi_load(path, &width, &height, &nrComponents, 0);
-    if (data)
-    {
-        GLenum format;
-        if (nrComponents == 1)
-            format = GL_RED;
-        else if (nrComponents == 3)
-            format = GL_RGB;
-        else if (nrComponents == 4)
-            format = GL_RGBA;
-        
-        glBindTexture(GL_TEXTURE_2D, textureID);
-        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-        
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT); // for this tutorial: use GL_CLAMP_TO_EDGE to prevent semi-transparent borders. Due to interpolation it takes texels from next repeat
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        
-        stbi_image_free(data);
-    }
-    else
-    {
-        std::cout << "Texture failed to load at path: " << path << std::endl;
-        stbi_image_free(data);
-    }
-    
-    return textureID;
+	
 }
-*/
 
 void loadTexture() {
-	obj1Texture = Texture("textures/blurry-bright.jpg");
-	obj1Texture.LoadTexture();
-	obj2Texture = Texture("textures/brick.png");
-	obj2Texture.LoadTextureA();
 	floorTexture = Texture("textures/grass.jpeg");
 	floorTexture.LoadTexture();
 
@@ -301,8 +160,8 @@ void loadTexture() {
 	leafTexture = Texture("textures/leaf.jpeg");
 	leafTexture.LoadTexture();
 
-	// grass.loadGrassTex("textures/grass.png");
-    // grassTexture = grass.getTexID();
+	grass.loadGrassTex("textures/grass.png");
+    grassTexture = grass.getTexID();
 }
 
 int main() 
@@ -318,14 +177,6 @@ int main()
 	camera = Camera(glm::vec3(0.0f, 0.0f, 15.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 10.0f, 5.0f, 0.02f);
 
 	std::cout << "camera finished..." << std::endl;
-
-	grass.loadGrassTex("textures/grass.png");
-    grassTexture = grass.getTexID();
-	
-    /*
-    grassTexture = Texture("textures/grass.jpeg");
-    grassTexture.LoadTexture();
-     */
 
 	loadTexture();
 	std::cout << "finished loading texture..." << std::endl;
@@ -343,18 +194,6 @@ int main()
     skyShader->UseShader();
     skyShader->setInt("skybox", 0);
     
-    /*
-    // skybox VAO
-    GLuint skyboxVAO, skyboxVBO;
-    glGenVertexArrays(1, &skyboxVAO);
-    glGenBuffers(1, &skyboxVBO);
-    glBindVertexArray(skyboxVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(sky->getVertices()) * 108, sky->getVertices(), GL_STATIC_DRAW);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    */
-    
     sky->buildSky();
     std::cout << "finished building sky..." << std::endl;
 
@@ -367,48 +206,14 @@ int main()
     grassShader->CreateFromFiles(vGrShader, fGrShader);
     grassShader->UseShader();
     grassShader->setInt("theTexture", 0);
-
-    /*
-    float grassVertices[] = {
-        // positions         // texture Coords (swapped y coordinates because texture is flipped upside down)
-        0.0f,  0.5f,  0.0f,  0.0f,  0.0f,
-        0.0f, -0.5f,  0.0f,  0.0f,  1.0f,
-        1.0f, -0.5f,  0.0f,  1.0f,  1.0f,
-        
-        0.0f,  0.5f,  0.0f,  0.0f,  0.0f,
-        1.0f, -0.5f,  0.0f,  1.0f,  1.0f,
-        1.0f,  0.5f,  0.0f,  1.0f,  0.0f
-    };
-    */
-    
-    /*
-    // grass VAO
-    GLuint grassVAO, grassVBO;
-    glGenVertexArrays(1, &grassVAO);
-    glGenBuffers(1, &grassVBO);
-    glBindVertexArray(grassVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, grassVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(grassVertices), grassVertices, GL_STATIC_DRAW);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-    glBindVertexArray(0);
-    */
     
 	GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0;
-	glm::mat4 projection = glm::perspective(45.0f, (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 100.0f);
-    
-	Tree tree1(4, 3, &branchTexture, &leafTexture, 1.0f, 1.0f);
-	Tree tree2(2, 3, &branchTexture, &leafTexture, 5.0f, 8.0f);
-	Tree tree3(3, 3, &branchTexture, &leafTexture, -7.0f, 5.0f);
+	glm::mat4 projection = glm::perspective(45.0f, (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 100.0f);	
 	
     // store trees in vector
     std::vector<Tree> trees;
-
+	Tree tree1(4, 3, &branchTexture, &leafTexture, 1.0f, 1.0f);
     trees.push_back(tree1);
-    trees.push_back(tree2);
-    trees.push_back(tree3);
 
 	std::cout << "objects created..." << std::endl;
     std::cout << "entering loop" << std::endl;
@@ -425,14 +230,6 @@ int main()
 
         // mouse controls
         camera.mouseControl(mainWindow.getXChange(), mainWindow.getYChange());
-        
-        
-		// camera.keyControl(mainWindow.getsKeys(), deltaTime);
-		// tree1.keyControl(mainWindow.getsKeys());
-		// tree2.keyControl(mainWindow.getsKeys());
-		// tree3.keyControl(mainWindow.getsKeys());
-        
-        
         keyboard(mainWindow.getsKeys(), deltaTime, camera, trees);
         
 		if (direction) {
@@ -474,42 +271,13 @@ int main()
 		uniformProjection = shaderList[0].GetProjectionLocation();
 		uniformView = shaderList[0].GetViewLocation();
 
-		glm::mat4 model = glm::mat4(1.0);
-
-		model = glm::translate(model, glm::vec3(triOffset-2, 1.0f, 2.5f));
-		model = glm::rotate(model, curAngle * toRadians, glm::vec3(1.0f, 1.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(0.4f, 0.4f, 1.0f));
-        glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
-        glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(camera.calculateViewMatrix()));
-		obj1Texture.UseTexture();
-		meshList[0]->RenderMesh();
-
 		glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(camera.calculateViewMatrix()*CreateRotateY(glm::radians(curAngle))));
 
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(-triOffset-4, 1.0f, 2.5f));
-		model = glm::rotate(model, curAngle * toRadians, glm::vec3(1.0f, 1.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(0.4f, 0.4f, 1.0f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
-		obj2Texture.UseTexture();
-		meshList[1]->RenderMesh();
-
-		model = glm::mat4(1.0);
+		glm::mat4 model = glm::mat4(1.0);
 		model = glm::translate(model, glm::vec3(0.0f, -2.0f, 0.0f));
-		//model = glm::scale(model, glm::vec3(0.4f, 0.4f, 1.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		floorTexture.UseTexture();
-		//shinyMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		meshList[2]->RenderMesh();
-
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(1.0f, -2.0f, 2.5f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
-		branchTexture.UseTexture();
-		meshList[3]->RenderMesh();
+		meshList[0]->RenderMesh();
 
         // render all trees
         for (int i = 0; i < trees.size(); i++)
@@ -523,21 +291,6 @@ int main()
         grassShader->setMat4("view", camera.calculateViewMatrix());
         
         grass.renderGrass(*grassShader);
-        
-        /*
-        glBindVertexArray(grassVAO);
-        for (GLuint i = 0; i < vegetation.size(); i++)
-        {
-            model = glm::mat4(1.0);
-            model = glm::translate(model, vegetation[i]);
-
-            grassShader->setMat4("model", model);
-            
-            glDrawArrays(GL_TRIANGLES, 0, 6);
-            glBindVertexArray(0);
-
-        }
-         */
 
         // draw skybox as last
         glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
