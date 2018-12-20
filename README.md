@@ -47,4 +47,4 @@ The following keyboard controls are supported:
 ![Alt text](screenshots/struct.png?raw=true "Code Structure")
 
 ## Future Work
-Adding hieghtmap terrain, water, wind, tree physics, environment mapping etc.
+Adding heightmap terrain, water, wind, tree physics, environment mapping etc.
