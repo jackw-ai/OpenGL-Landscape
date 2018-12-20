@@ -1,7 +1,7 @@
 # OpenGL Natural Landscape
 Landscape scene rendered in OpenGL. By Meng Dong and Tinda Wang.
 
-![Alt text](screenshots/struct.png?raw=true "Code Structure")
+
 ## Requirements
 `C++ 11` or higher required. Packages `GLM`, `GLEW`, `GLFW` included in the repo along with the `stb_image` open source public image loader.
 
@@ -41,6 +41,10 @@ The following keyboard controls are supported:
  `B` : Regress trees downward
  
  `A` : Adding more trees (Three instead of one for now)
+
+## Code Structure
+
+![Alt text](screenshots/struct.png?raw=true "Code Structure")
 
 ## Future Work
 Adding hieghtmap terrain, water, wind, tree physics, environment mapping etc.
