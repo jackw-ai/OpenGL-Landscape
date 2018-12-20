@@ -3,9 +3,11 @@ Landscape scene rendered in OpenGL. By Meng Dong and Tinda Wang.
 
 
 ## Requirements
-`C++ 11` or higher required. Packages `GLM`, `GLEW`, `GLFW` included in the repo along with the `stb_image` open source public image loader.
+`C++ 11` or higher required. Packages `GLM`, `GLEW`, `GLFW` included in the repo along with the `stb_image` open source public image loader. The versions that we included in the repo require `cmake` to install. Using `brew` works as well.
 
 ## Run
+The project was built on macOS Mojave. The program has not been tested on other machines or operating systems, although they may be supported/easily ported.
+
 To run the program on macOS, in the command line, enter the following,
 
 ```$ cd src```
@@ -14,9 +16,7 @@ To run the program on macOS, in the command line, enter the following,
 
 ```$ ./main```
 
-Be sure to have the packages installed. The versions included in the repo require cmake to install.
-
-The project was built on macOS Mojave. The program has not been tested on other machines or operating systems.
+Be sure to have the required packages installed. 
 
 ## Controls
 
