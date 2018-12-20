@@ -44,7 +44,7 @@ The following keyboard controls are supported:
  
  `B` : Regress trees downward
  
- `A` : Adding more trees (Three instead of one for now)
+ `M` : Adding more trees (Three instead of one for now)
 
 ## Code Structure
 
