@@ -53,17 +53,13 @@ float minSize = 0.1f;
 float skyboxSize = 50.0f;
 float floorSize = 30.0f;
 
+// store trees in vector
+std::vector<Tree> trees;
+
 // vegetation
 int grassCount = 10000;
 
 Grass grass;
-/*
- 
- std::vector<glm::vec3> vegetation;
-
- static float rand_FloatRange(float a, float b);
-void generateGrass(int numGrass);
-*/
 
 // Vertex Shader
 static const char* vShader = "Shaders/shader.vert";
@@ -111,6 +107,21 @@ glm::mat4 CreateRotateY(float angle) {
                     0.f,         0.f, 0.f,          1.f);
 }
 
+// helper
+float rand_FloatRange(float a, float b) {
+    return ((b - a) * ((float)rand() / RAND_MAX)) + a;
+}
+
+// randomly plant more trees
+void addTrees(){
+    float x, z;
+    x = rand_FloatRange(-floorSize, floorSize);
+    z = rand_FloatRange(-floorSize, floorSize);
+    int thickness = (int) rand_FloatRange(1.0, 6.0);
+    Tree tree(thickness, 3, &branchTexture, &leafTexture, x, z);
+    trees.push_back(tree);
+}
+
 // wrapper for keyboard functions across all classes
 void keyboard(bool* keys, GLfloat deltaTime, Camera& camera, std::vector<Tree>& trees){
     
@@ -141,14 +152,16 @@ void keyboard(bool* keys, GLfloat deltaTime, Camera& camera, std::vector<Tree>& 
 
     }
 
-    // add more trees
+    // add more trees by planting more seeds
     // WARNING may slow things down
 	if (keys[GLFW_KEY_M]){
-        Tree tree2(2, 3, &branchTexture, &leafTexture, 5.0f, 8.0f);
-		Tree tree3(3, 3, &branchTexture, &leafTexture, -7.0f, 5.0f, 3);
+        
+        addTrees();
+        //Tree tree2(2, 3, &branchTexture, &leafTexture, 5.0f, 8.0f);
+		//Tree tree3(3, 3, &branchTexture, &leafTexture, -7.0f, 5.0f, 3);
 
-		trees.push_back(tree2);
-    	trees.push_back(tree3);
+		//trees.push_back(tree2);
+    	//trees.push_back(tree3);
     }
 
 	
@@ -211,12 +224,12 @@ int main()
     grassShader->setInt("theTexture", 0);
     
 	GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0;
-	glm::mat4 projection = glm::perspective(45.0f, (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 100.0f);	
-	
-    // store trees in vector
-    std::vector<Tree> trees;
-	Tree tree1(4, 3, &branchTexture, &leafTexture, 1.0f, 1.0f);
-    trees.push_back(tree1);
+	glm::mat4 projection = glm::perspective(45.0f, (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 100.0f);
+    
+    addTrees();
+    
+	//Tree tree1(4, 3, &branchTexture, &leafTexture, 1.0f, 1.0f);
+    //trees.push_back(tree1);
 
 	std::cout << "objects created..." << std::endl;
     std::cout << "entering loop" << std::endl;
