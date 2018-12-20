@@ -140,7 +140,7 @@ void keyboard(bool* keys, GLfloat deltaTime, Camera& camera, std::vector<Tree>& 
 
     }
 
-	if (keys[GLFW_KEY_A]){
+	if (keys[GLFW_KEY_M]){
         Tree tree2(2, 3, &branchTexture, &leafTexture, 5.0f, 8.0f);
 		Tree tree3(3, 3, &branchTexture, &leafTexture, -7.0f, 5.0f, 3);
 
