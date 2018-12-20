@@ -285,7 +285,7 @@ int main()
         grassShader->UseShader();
     
         grassShader->setMat4("projection", projection);
-        grassShader->setMat4("view", camera.calculateViewMatrix());
+        grassShader->setMat4("view", camera.calculateViewMatrix()*CreateRotateY(glm::radians(curAngle)));
         
         grass.renderGrass(*grassShader);
 
@@ -298,7 +298,7 @@ int main()
         // draw skybox as last
         glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
         skyShader->UseShader();
-        glm::mat4 view = glm::mat4(glm::mat3(camera.calculateViewMatrix())); // remove translation from the view matrix
+        glm::mat4 view = glm::mat4(glm::mat3(camera.calculateViewMatrix()*CreateRotateY(glm::radians(curAngle)))); // remove translation from the view matrix
         skyShader->setMat4("view", view);
         skyShader->setMat4("projection", projection);
         
