@@ -273,12 +273,6 @@ int main()
 
 		glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(camera.calculateViewMatrix()*CreateRotateY(glm::radians(curAngle))));
 
-		glm::mat4 model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(0.0f, -2.0f, 0.0f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		floorTexture.UseTexture();
-		meshList[0]->RenderMesh();
-
         // render all trees
         for (int i = 0; i < trees.size(); i++)
             trees[i].renderTree(uniformModel, uniformView, uniformProjection, projection);
@@ -291,6 +285,12 @@ int main()
         grassShader->setMat4("view", camera.calculateViewMatrix());
         
         grass.renderGrass(*grassShader);
+
+		glm::mat4 model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(0.0f, -2.0f, 0.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		floorTexture.UseTexture();
+		meshList[0]->RenderMesh();
 
         // draw skybox as last
         glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
