@@ -43,7 +43,7 @@ private:
 	Texture* branchTexture;
 	Texture* leafTexture;
 
-	bool render_leaves=true;
+	bool render_leaves = true;
   	int num_leaves=10;
   	int leaves_color;
 };

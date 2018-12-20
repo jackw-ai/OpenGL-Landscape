@@ -270,14 +270,18 @@ void Tree::renderTree(GLuint uniformModel, GLuint uniformView, GLuint uniformPro
 
 void Tree::keyControl(bool* keys) {
     
+    // grow upwards
 	if (keys[GLFW_KEY_G]) {
 		growUpward(keys);
 	}
 
+    // grow downwards
 	if (keys[GLFW_KEY_B]) {
 		growDownward(keys);
 	}
 
+    // toggle leaves
+    // Beware: may slow down dramatically
 	if (keys[GLFW_KEY_L]) {
 		std::cout << "toggle leaves" << std::endl;
 		render_leaves = !render_leaves;
