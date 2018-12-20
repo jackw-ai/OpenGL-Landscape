@@ -114,13 +114,15 @@ float rand_FloatRange(float a, float b) {
 
 // randomly plant more trees
 void addTree(){
+    
     // randomize parameters
     float x = rand_FloatRange(-floorSize, floorSize);
     float z = rand_FloatRange(-floorSize, floorSize);
-    int thickness = (int) rand_FloatRange(1.0, 6.0);
+    int depth = (int) rand_FloatRange(1.0, 6.0);
     int height = (int) rand_FloatRange(1.0, 8.0);
 
-    Tree tree(thickness, height, &branchTexture, &leafTexture, x, z);
+    Tree tree(depth, height, &branchTexture, &leafTexture, x, z);
+
     trees.push_back(tree);
 }
 
