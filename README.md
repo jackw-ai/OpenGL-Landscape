@@ -1,9 +1,13 @@
 # OpenGL Natural Landscape
 Landscape scene rendered in OpenGL. By Meng Dong and Tinda Wang.
 
+## Features
+An extensible openGL 3D environment framework with underlying texture, shader, mesh, and camera infrastructure that renders trees, leaves and grass, all under a skybox.
 
 ## Requirements
-`C++ 11` or higher required. Packages `GLM`, `GLEW`, `GLFW` included in the repo along with the `stb_image` open source public image loader. The versions that we included in the repo require `cmake` to install. Using `brew` works as well.
+`C++ 11` or higher required. Packages `GLM`, `GLEW`, `GLFW` included in the repo along with the `stb_image` open source public image loader. `GLSL`shader language support also required. 
+
+The versions of `GLM`, `GLEW`, and `GLFW` that we included in the repo require `cmake` to install. Using `brew` works as well. 
 
 ## Run
 The project was built on macOS Mojave. The program has not been tested on other machines or operating systems, although they may be supported/easily ported.
@@ -48,3 +52,8 @@ The following keyboard controls are supported:
 
 ## Future Work
 Adding heightmap terrain, water, wind, tree physics, environment mapping etc.
+
+## Acknowledgements
+Everything in this project were built for educational purposes with open source tooks and frameworks. The rights of all packages belong to their owners. 
+
+<a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/3.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/3.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/3.0/">Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License</a>.
