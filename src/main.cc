@@ -54,7 +54,7 @@ float skyboxSize = 50.0f;
 float floorSize = 30.0f;
 
 // vegetation
-int grassCount = 1000;
+int grassCount = 10000;
 Grass grass;
 /*
  
