@@ -13,7 +13,7 @@ The versions of `GLM`, `GLEW`, and `GLFW` that we included in the repo require `
 
 ![Alt text](screenshots/scene2.png?raw=true "Scene 2")
 
-## Run
+## Compile and Run
 The project was built on macOS Mojave. The program has not been tested on other machines or operating systems, although they may be supported/easily ported.
 
 To run the program on macOS, in the command line, enter the following,
@@ -27,10 +27,9 @@ To run the program on macOS, in the command line, enter the following,
 Be sure to have the required packages installed. 
 
 ## Controls
+In addition to moving the cursor to look around (Ego motion), the following keyboard controls are also supported:
 
-The following keyboard controls are supported:
-
- `R`: Toggle the rotation of world view 
+ `R`: Toggle the rotation of world view  (Orbit Motion)
  
  `Right/Left Arrow`: Change the rotation speed
  
@@ -42,7 +41,7 @@ The following keyboard controls are supported:
  
  `D` : Move camera to the right 
  
- `L` : Toggle leaves
+ `L` : Toggle leaves (turning off may improve performance)
  
  `G` : Grow trees upward  
  
