@@ -20,10 +20,12 @@ Tree::Tree(int init_depth, int init_height, Texture* init_branchTexture, Texture
 	// cortex
 	Branch* cortex = new Branch(0.0f, -1.0f, 2.0f, x_pos, z_pos, strong_factor+(max_depth/5));
 	branchList.push_back(cortex);
+	CreateCylinderBranchMesh();
 
 	// root branch
 	Branch* root_branch = new Branch(0.0f, 2.0f, 1.0f, x_pos, z_pos, strong_factor+(max_depth/5));
 	branchList.push_back(root_branch);
+	CreateCylinderBranchMesh();
 
 	// // build the tree per level of height given depth
 	Branch* level_root_branch = root_branch;
@@ -33,6 +35,7 @@ Tree::Tree(int init_depth, int init_height, Texture* init_branchTexture, Texture
 		if (h < max_height) {
 			level_root_branch = new Branch(0.0f, 2.0f+h*1.8f, 1.0f, x_pos, z_pos, strong_factor+(max_depth/5));
 			branchList.push_back(level_root_branch);
+			CreateCylinderBranchMesh();
 		}
 	}
 }
@@ -65,6 +68,7 @@ void Tree::buildTree(Branch* root_branch, int tree_depth, int tree_height, int t
 		}
 		Branch* branch = new Branch(angle, y_translation, root_branch, 1.0f, curr_strong_factor+(tree_depth/5));
 		branchList.push_back(branch);
+		CreateCylinderBranchMesh();
 
 		buildTree(branch, tree_depth-1, tree_height, total_depth);
 	}
@@ -78,6 +82,7 @@ void Tree::buildLeaves(Branch* root_branch) {
 		y_translation += 0.2f*0.5+rand()%100/1000;
 		Branch* branch = new Branch(angle, y_translation, root_branch, 0.2f*strong_factor/3, 1, true);
 		branchList.push_back(branch);
+		CreateFourLeavesMesh();
 	}	
 }
 
@@ -252,18 +257,16 @@ void Tree::renderTree(GLuint uniformModel, GLuint uniformView, GLuint uniformPro
 		if (curr_branch->leaf == true) {
 			if (render_leaves) {
 				//CreateTriangleLeavesMesh();
-				CreateFourLeavesMesh();
 				curr_branch->renderBranch(uniformModel, uniformProjection, projection);
 				leafTexture->UseTexture();
-				treeMeshList[treeMeshList.size()-1]->RenderMesh();
+				treeMeshList[i]->RenderMesh();
 			}
 		}
 		else{
-			CreateCylinderBranchMesh();
 			curr_branch->renderBranch(uniformModel, uniformProjection, projection);
 			branchTexture->UseTexture();
 			rendered++;
-			treeMeshList[treeMeshList.size()-1]->RenderMesh();
+			treeMeshList[i]->RenderMesh();
 		}
 	}
 }
