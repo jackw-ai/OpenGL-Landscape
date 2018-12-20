@@ -113,12 +113,14 @@ float rand_FloatRange(float a, float b) {
 }
 
 // randomly plant more trees
-void addTrees(){
-    float x, z;
-    x = rand_FloatRange(-floorSize, floorSize);
-    z = rand_FloatRange(-floorSize, floorSize);
+void addTree(){
+    // randomize parameters
+    float x = rand_FloatRange(-floorSize, floorSize);
+    float z = rand_FloatRange(-floorSize, floorSize);
     int thickness = (int) rand_FloatRange(1.0, 6.0);
-    Tree tree(thickness, 3, &branchTexture, &leafTexture, x, z);
+    int height = (int) rand_FloatRange(1.0, 8.0);
+
+    Tree tree(thickness, height, &branchTexture, &leafTexture, x, z);
     trees.push_back(tree);
 }
 
@@ -155,13 +157,7 @@ void keyboard(bool* keys, GLfloat deltaTime, Camera& camera, std::vector<Tree>& 
     // add more trees by planting more seeds
     // WARNING may slow things down
 	if (keys[GLFW_KEY_M]){
-        
-        addTrees();
-        //Tree tree2(2, 3, &branchTexture, &leafTexture, 5.0f, 8.0f);
-		//Tree tree3(3, 3, &branchTexture, &leafTexture, -7.0f, 5.0f, 3);
-
-		//trees.push_back(tree2);
-    	//trees.push_back(tree3);
+        addTree();
     }
 
 	
@@ -226,11 +222,16 @@ int main()
 	GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0;
 	glm::mat4 projection = glm::perspective(45.0f, (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 100.0f);
     
-    addTrees();
+    // start with three trees
+	Tree tree1(4, 3, &branchTexture, &leafTexture, 1.0f, 1.0f);
+    Tree tree2(2, 3, &branchTexture, &leafTexture, 5.0f, 8.0f);
+    Tree tree3(3, 3, &branchTexture, &leafTexture, -7.0f, 5.0f, 3);
     
-	//Tree tree1(4, 3, &branchTexture, &leafTexture, 1.0f, 1.0f);
-    //trees.push_back(tree1);
-
+    trees.push_back(tree1);
+    trees.push_back(tree2);
+    trees.push_back(tree3);
+    
+    
 	std::cout << "objects created..." << std::endl;
     std::cout << "entering loop" << std::endl;
 
