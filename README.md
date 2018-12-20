@@ -1,5 +1,5 @@
 # OpenGL Natural Landscape
-Landscape scene rendered in OpenGL. By Meng Dong and Tinda Wang.
+Landscape scene rendered in OpenGL. By Meng Dong and Tingda Wang.
 
 ## Features
 An extensible openGL 3D environment framework with underlying texture, shader, mesh, and camera infrastructure that renders trees, leaves and grass, all under a skybox.
